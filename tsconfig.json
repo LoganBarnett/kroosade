@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react",
+    "module": "es6",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist/",
+    "resolveJsonModule": true,
+    "strictBindCallApply": true,
+    "target": "es6",
+    "types": [
+      "react",
+      "react-dom/experimental",
+      "react-dom/next",
+      "./types/jailed",
+      "./types/should-be-standard",
+      "./types/ajv-json-schema",
+      "./types/tsconfig.json",
+      "./types/validation-error-array.schema.json"
+    ],
+    "useUnknownInCatchVariables": true
+  }
+}

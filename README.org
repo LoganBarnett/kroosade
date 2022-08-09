@@ -1,0 +1,102 @@
+#+title:     Green Kroosade
+#+author:    Logan Barnett-Hoy
+#+email:     logustus@gmail.com
+#+date:      <2022-05-16 Mon>
+#+language:  en
+#+file_tags:
+#+tags:
+
+* Green Kroosade
+
+This is a Crusade management system for Games Workshop's Warhammer 40,000, 9th
+Edition (henceforth, "40k").
+
+From this application, you can manage your Crusade rosters, data sheets, view
+history, and share your rosters with others.
+
+** Technology
+
+Green Kroosade is built upon a fairly typical React.js + TypeScript + Webpack
+UI, with an Express.js server.
+
+The database is CouchDB.
+** Design
+
+*** Design Philosophy
+
+The design of the system must support any long-running game of arbitrary
+selection rules involving an army roster or something akin to it.
+
+An important aspect of Crusade tracking is the computation of various costs to
+ensure one stays within the power limits. There are other costs, the tracking of
+changes to the roster over time, etc. 40k has many different sets of rules which
+are highly varied and even then, we'd like a system that can support whatever
+10th edition happens to be when it comes out. Our design must be resilient to
+change. Changes in editions could be severe, and would necessitate some changes,
+but our system must support these changes without a redesign.
+
+Indeed, there is utility in being able to straddle editions. For example, there
+may be beta testing groups that wish to use the application to conduct their own
+crusades.
+
+Additionally, a system that more or less supports any system would not only work
+for future editions of 40k, but could also bring in a larger community of
+contributors who use other game forms entirely.
+
+*** Handling Logic With Data
+
+We'll be using a scripting language (TypeScript) in the data to indicate
+how costs and validations should be computed.
+
+Upon investigating the design, it was noticed that a good, abstract design of
+the data model was drifting into an abstract syntax tree expressed in a JSON
+compatible form. Instead of making our own, inferior language, let's just
+utilize JavaScript (preferably, TypeScript due to its combination of ubiquity
+and relative type-safety). The [[https://github.com/patriksimek/vm2][vm2]] should be a good library to start with on
+allowing us to create a JavaScript sandbox that is secure and community
+maintained. We can use TypeScript by first transpiling it, as seen in [[https://github.com/patriksimek/vm2/issues/323][vm#323]].
+
+I looked into =vm2= and found it inadequate for this project's needs. =vm2=
+doesn't work in a browser. From what I have read, this is possible to do via
+web workers and/or a restricted iframe. I need to read how this is done - I
+don't think using web workers nor iframes are particularly locked down the way I
+would need them to be with default settings.
+
+I can have a wrapper which decides to use =vm2= if it is executed in a Node.js
+context (such as an Electron app), and use the browser mechanism (whatever I
+pick) if we're running in the browser.
+*** Data Model
+
+While trying to express what kind of fundamental particle exists in a roster
+creation mechanism such as this, consider the general flow:
+
+1. Choose to bring an option. That option has some costs associated with it, and
+   validations to ensure it is correctly brought. That option may have
+   suboptions.
+2. This option is saved, but only the selection of the option.
+3. The suboptions in the option are treated with the same logic as the parent
+   option.
+
+Consider an example: We have Craftworld Aeldari (need to get a better option for
+non-trademarked material). We select a Patrol detachment. The detachment is an
+extant option - meaning its presence _is_ the selection. The same goes for any
+of the unit selections we make within that detachment. We should declare a
+=ExtantOption= to represent this.
+
+In our nomenclature, =Option= is the definition or the availability of the
+choice, and =Selection= is the choice made from the option. In the case of
+=ExtantOption=, an =ExtantSelection= matches it. The =ExtantSelection= only has
+two critical pieces of data: A reference to the =ExtantOption= and any
+sub-selections made for it, if applicable.
+
+A Patrol detachment is but one of the many detachment types we can select. For
+example, Patrol and Battalion detachments are common choices for rosters. We
+need a way of expressing that these may be chosen, and chosen multiple times. A
+=Roster= will include the various detachments all as =ExtantOption= children.
+
+General units have costs, points per-model, and selections within those. These
+selections change costs.
+
+Costs can be calculated with actual functions. This is an important factor to
+the data model. In this way we don't need the data model to reflect a syntax
+tree.

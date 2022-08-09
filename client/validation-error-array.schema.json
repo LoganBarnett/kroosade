@@ -1,0 +1,6 @@
+{
+  "type": "array",
+  "items": {
+    "$ref": "validation-error.schema.json#/definitions/validation-error"
+  }
+}

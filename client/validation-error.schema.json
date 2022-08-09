@@ -1,0 +1,20 @@
+{
+  "id": "validation-error.schema.json#",
+  "type": "object",
+  "properties": {
+    "kind": { "type": "string" },
+    "name": { "type": "string" },
+    "message": { "type": "string" },
+    "targets": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "required": [
+      "kind",
+      "name",
+      "message",
+      "targets"
+    ],
+    "additionalProperties": false
+  }
+}

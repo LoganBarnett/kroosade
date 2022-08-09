@@ -1,0 +1,13 @@
+declare module 'validation-error-array.schema.json' {
+  // This is a very strange place for this to reside, but TypeScript is unhappy
+  // if it is literally anywhere else. It must be within this "ambient"
+  // (implementation-less) module.
+  import { ErrorObject } from 'ajv';
+
+  interface ValidateFn {
+    (data: unknown): data is Array<ValidationError>;
+    errors: ErrorObject[] | null;
+  }
+  const validate: ValidateFn;
+  export default validate;
+}
