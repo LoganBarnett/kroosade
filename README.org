@@ -100,3 +100,88 @@ selections change costs.
 Costs can be calculated with actual functions. This is an important factor to
 the data model. In this way we don't need the data model to reflect a syntax
 tree.
+*** GUI
+
+The GUI should be =a11y= friendly and be prepared for internationalization.
+While this might not all be covered on the first pass, this is something that
+will be worked towards in future contributions.
+
+The wide layout stacks all data on the left-most side. Editing details comes in
+on the right side. The left side should take a fixed or maximum amount of space,
+and the right side should take up remaining space. Some indication must be made
+to indicate which item is being edited. In the selection below, =unit1= is being
+edited.
+
+Further to the right will be an information panel with any additional
+information that belongs to the highlighted entity. This can include rules,
+tags, data sheets, etc.
+
+#+begin_src artist
+|--------------------------------------------------------------------------------|
+|             | |                          |                                     |
+| roster      | | (Options for unit 1)     | Unit 1 is the bestest unit, and can |
+|-------------| |                          | beat all of the other units at      |
+| detachment1 | | Option 1:                | everything ever.                    |
+|-------------| | ( ) choice a             |                                     |
+| unit1       |<| (x) choice b             | Tags: MARY SUE                      |
+|-------------| | ( ) choice c             |                                     |
+| unit2       | |                          | Stats:                              |
+|-------------| | Option 2:                | 1 bajillion of everything.          |
+| detachment2 | | [ ] choice a             |                                     |
+|-------------| | [ ] choice b             |                                     |
+| unit3       | | [x] choice c             |                                     |
+|-------------| |                          |                                     |
+| unit4       | | Option 3: [x]            |                                     |
+|             | | Option 4: 5              |                                     |
+|--------------------------------------------------------------------------------|
+#+end_src
+
+In a less wide view, the information panel is omitted. The info panel can be
+summoned via a button at the bottom.
+
+#+begin_src artist
+|---------------------------------------|
+|             | |                       |
+| roster      | | (Options for unit 1)  |
+|-------------| |                       |
+| detachment1 | | Option 1:             |
+|-------------| | ( ) choice a          |
+| unit1       |<| (x) choice b          |
+|-------------| | ( ) choice c          |
+| unit2       | |                       |
+|-------------| | Option 2:             |
+| detachment2 | | [ ] choice a          |
+|-------------| | [ ] choice b          |
+| unit3       | | [x] choice c          |
+|-------------| |                       |
+| unit4       | | Option 3: [x]         |
+|             | | Option 4: 5           |
+|---------------------------------------|
+|                                   (i) |
+|---------------------------------------|
+#+end_src
+
+In the narrowest view, only the roster details are shown. Selecting an item in
+the roster will bring up options for that selection.
+
+#+begin_src artist
+|-------------|
+|             |
+| roster      |
+|-------------|
+| detachment1 |
+|-------------|
+| unit1       |
+|-------------|
+| unit2       |
+|-------------|
+| detachment2 |
+|-------------|
+| unit3       |
+|-------------|
+| unit4       |
+|             |
+|-------------|
+|         (i) |
+|-------------|
+#+end_src
