@@ -3,58 +3,19 @@
 import React, { type FC, type ReactElement, useState } from 'react'
 import * as ReactDOM from 'react-dom'
 import { options } from './data'
-import { type ExtantSelection, type Selection } from './model'
+import { type Selection } from './model'
 import rosterFn from './roster'
+import { roster } from './example-roster'
+
+export type State = {
+  focus: Selection | null,
+}
 
 const Roster = rosterFn('roster-parent')
 // @ts-ignore - I guess createRoot isn't supported yet. I have tried
 // react-dom/experimental and react-dom/next as imported types and references,
 // but still no joy.
 const root = ReactDOM.createRoot(document.querySelector('body'))
-const roster: ExtantSelection = {
-  children: [
-    {
-      children: [
-        {
-          children: [
-            {
-              children: [
-                {
-                  children: [],
-                  id: '5',
-                  kind: 'numeric-selection',
-                  name: null,
-                  optionKey: 'dire-avengers-unit-size',
-                  value: 4,
-                },
-              ],
-              id: '4',
-              kind: 'extant-selection',
-              name: null,
-              optionKey: 'dire-avengers-unit',
-            },
-          ],
-          id: '3',
-          kind: 'extant-selection',
-          name: null,
-          optionKey: 'elite-battlefield-role',
-        },
-      ],
-      id: '2',
-      kind: 'extant-selection',
-      name: null,
-      optionKey: 'patrol-detachment',
-    },
-  ],
-  id: '1',
-  kind: 'extant-selection',
-  name: 'Amazing Army',
-  optionKey: 'roster',
-}
-
-export type State = {
-  focus: Selection | null,
-}
 
 // Use semantic HTML to do the layout. Used example taken from
 // https://gist.github.com/thomd/9220049
