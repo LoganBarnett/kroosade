@@ -6,12 +6,13 @@
  */
 export type ExtantOption = {
   name: string,
+  key: string,
   kind: 'extant-option',
   // Validations, costs, and sub-options are all handed here as children.
   // Separating them into separate fields doesn't carry big distinctions, and
   // any additional data types would necessitate adding more fields onto
   // Option types.
-  children: Array<Entity>,
+  children: ReadonlyArray<Entity>,
 }
 
 /**
@@ -23,12 +24,13 @@ export type ExtantOption = {
  */
 export type ExclusiveOption = {
   name: string,
+  key: string,
   kind: 'exclusive-option',
   // Validations, costs, and sub-options are all handed here as children.
   // Separating them into separate fields doesn't carry big distinctions, and
   // any additional data types would necessitate adding more fields onto
   // Option types.
-  children: Array<Entity>,
+  children: ReadonlyArray<Entity>,
 }
 
 /**
@@ -36,11 +38,27 @@ export type ExclusiveOption = {
  * minimums and maximums.
  */
 export type NumericOption = {
-  children: Array<Entity>,
+  children: ReadonlyArray<Entity>,
+  key: string,
   kind: 'numeric-option',
   maximum: number,
   minimum: number,
   name: string,
+}
+
+/**
+ * RepeatingExtantOptions allow for multiple selections of ExtantOptions.
+ * ExtantOptions have two primary states: Present or not present. A
+ * RepeatingExtantOption is essentially zero or more ExtantOptions.
+ *
+ * This is useful when selections can be made more than once, but also when each
+ * selection could have its own customizations.
+ */
+export type RepeatingExtantOption = {
+  name: string,
+  key: string,
+  kind: 'repeating-extant-option',
+  children: ReadonlyArray<Entity>,
 }
 
 export type Option =
@@ -49,8 +67,25 @@ export type Option =
   | NumericOption
 
 export type ExtantSelection = {
-  name: 'extant-selection',
+  children: ReadonlyArray<Selection>,
+  id: string,
+  kind: 'extant-selection',
+  optionKey: string,
+  name: string | null,
 }
+
+export type NumericSelection = {
+  children: ReadonlyArray<Selection>,
+  id: string,
+  kind: 'numeric-selection',
+  optionKey: string,
+  name: string | null,
+  value: number,
+}
+
+export type Selection =
+  | ExtantSelection
+  | NumericSelection
 
 // Old
 export type OrderOfBattle = {
@@ -62,11 +97,11 @@ export type OrderOfBattle = {
 // New
 
 export type UnknownEntity = {
-  children: Array<Entity>,
-  costs: Array<Cost>,
+  children: ReadonlyArray<Entity>,
+  costs: ReadonlyArray<Cost>,
   definition: string,
   name: string,
-  tags: Array<string>,
+  tags: ReadonlyArray<string>,
   value: unknown,
 }
 
@@ -77,10 +112,10 @@ export type Cost = {
 }
 
 export type CostEntity = {
-  children: Array<Entity>,
+  children: ReadonlyArray<Entity>,
   definition: 'cost',
   name: string,
-  tags: Array<string>,
+  tags: ReadonlyArray<string>,
   value: Cost,
 }
 
@@ -90,26 +125,26 @@ export type Validation = {
 }
 
 export type ValidationEntity = {
-  children: Array<Entity>,
+  children: ReadonlyArray<Entity>,
   definition: 'validation',
   name: string,
-  tags: Array<string>,
+  tags: ReadonlyArray<string>,
   value: Validation
 }
 
 export type AmountEntityDefinition = {
-  children: Array<Entity>,
+  children: ReadonlyArray<Entity>,
   definition: 'amount',
   name: 'amount',
-  tags: Array<string>,
+  tags: ReadonlyArray<string>,
   value: number,
 }
 
 export type AmountEntity = {
-  children: Array<Entity>,
+  children: ReadonlyArray<Entity>,
   definition: 'amount',
   name: 'amount',
-  tags: Array<string>,
+  tags: ReadonlyArray<string>,
   value: number,
 }
 
@@ -117,14 +152,14 @@ export type ValidationError = {
   kind: string,
   name: string,
   message: string,
-  targets: Array<string>,
+  targets: ReadonlyArray<string>,
 }
 
 export type FieldEntity = {
-  children: Array<Entity>,
+  children: ReadonlyArray<Entity>,
   definition: 'field',
   name: string,
-  tags: Array<string>,
+  tags: ReadonlyArray<string>,
   value: {
     key: string,
     value: unknown,
@@ -132,10 +167,10 @@ export type FieldEntity = {
 }
 
 export type ObjectEntity = {
-  children: Array<Entity>,
+  children: ReadonlyArray<Entity>,
   definition: 'object',
   name: string,
-  tags: Array<string>,
+  tags: ReadonlyArray<string>,
   value: { [key: string]: FieldType },
 }
 
