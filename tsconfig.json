@@ -10,6 +10,7 @@
     "outDir": "./dist/",
     "resolveJsonModule": true,
     "strictBindCallApply": true,
+    "strictNullChecks": true,
     "target": "es6",
     "types": [
       "react",

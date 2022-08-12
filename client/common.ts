@@ -63,7 +63,8 @@ export function deepAccum<A extends Entity, B>(
 }
 
 export function isCost(e: Entity): e is CostEntity {
-  return e.definition == 'cost'
+  //return e.definition == 'cost'
+  return true
 }
 
 export function cost(e: Entity): Array<Cost> {
@@ -71,7 +72,8 @@ export function cost(e: Entity): Array<Cost> {
 }
 
 export function isValidation(e: Entity): e is ValidationEntity {
-  return e.definition == 'validation'
+  //return e.definition == 'validation'
+  return true
 }
 
 export function valid(e: Entity): Promise<Array<ValidationError>> {
@@ -93,7 +95,7 @@ export function validate(e: ValidationEntity): Promise<Array<ValidationError>> {
     } else {
       throw new Error(
         "Error deserializing validation errors: \n"
-          + validationErrorArraySchema.errors.join("\n"),
+          + (validationErrorArraySchema?.errors || []).join("\n"),
       )
     }
   })
