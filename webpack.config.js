@@ -25,6 +25,7 @@ const { mergeRight, append } = require('ramda')
 const autoprefixer = require('autoprefixer')
 // const cssNext = require('postcss-cssnext')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const path = require('path')
 const webpack = require('webpack')
 
@@ -51,11 +52,16 @@ module.exports = {
     publicPath: '/',
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
+    new MiniCssExtractPlugin(),
     new HtmlWebpackPlugin({
       template: 'index.html',
       filename: 'index.html',
       inject: true,
+    }),
+    new webpack.HotModuleReplacementPlugin(),
+    // Prevent Webpack from rebuilding when the css.d.ts files are written out.
+    new webpack.WatchIgnorePlugin({
+      paths: [/css\.d\.ts$/],
     }),
   ],
   module: {
@@ -63,14 +69,24 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          'css-modules-flow-types-loader',
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+            },
+          },
+          {
+            loader: 'css-modules-typescript-loader',
+            options: {
+              mode: process.env.CI ? 'verify' : 'emit'
+            }
+          },
           {
             loader: 'css-loader',
             options: {
-              importLoaders: true,
-              localIdentName: '[name]__[local]__[hash:base64:5]',
-              minimize: false,
-              modules: true,
+              importLoaders: 0,
+              modules: {
+                localIdentName: '[name]__[local]__[hash:base64:5]',
+              },
               sourceMap: true,
             }
           },
@@ -78,9 +94,11 @@ module.exports = {
             loader: 'postcss-loader',
             options: {
               sourceMap: true,
-              plugins: [
-                autoprefixer(),
-              ],
+              postcssOptions: {
+                plugins: [
+                  autoprefixer(),
+                ],
+              },
             },
           },
         ],

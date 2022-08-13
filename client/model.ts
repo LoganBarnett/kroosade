@@ -72,6 +72,7 @@ export type ExtantSelection = {
   kind: 'extant-selection',
   optionKey: string,
   name: string | null,
+  selected: boolean,
 }
 
 export type NumericSelection = {

@@ -6,12 +6,14 @@ import { options } from './data'
 import { type Selection } from './model'
 import rosterFn from './roster'
 import { roster } from './example-roster'
+import { default as selectionDetailsFn } from './selection-details'
 
 export type State = {
   focus: Selection | null,
 }
 
 const Roster = rosterFn('roster-parent')
+const SelectionDetails = selectionDetailsFn('selection-details')
 // @ts-ignore - I guess createRoot isn't supported yet. I have tried
 // react-dom/experimental and react-dom/next as imported types and references,
 // but still no joy.
@@ -21,10 +23,10 @@ const root = ReactDOM.createRoot(document.querySelector('body'))
 // https://gist.github.com/thomd/9220049
 const Page: FC<{}> = (props: {}): ReactElement => {
   const [state, setState] = useState({
-    unitSelected: null,
+    focus: null,
   })
   const focus = (selection: Selection): void => {
-    setState({...state, ...{ focus: selection }})
+    setState(Object.assign({}, state, { focus: selection }))
   }
   return <>
     <header>
@@ -34,9 +36,12 @@ const Page: FC<{}> = (props: {}): ReactElement => {
     </header>
     <article>
       <h1>Roster</h1>
-      <Roster focus={focus} options={options} roster={roster} />
+      <section>
+        <Roster focus={focus} options={options} roster={roster} />
+      </section>
       <section>
         <h2>Selection</h2>
+        <SelectionDetails options={options} selection={state.focus} />
       </section>
       <section>
         <h2>Info</h2>
