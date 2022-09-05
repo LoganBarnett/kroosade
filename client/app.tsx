@@ -7,6 +7,8 @@ import { type Selection } from './model'
 import rosterFn from './roster'
 import { roster } from './example-roster'
 import { default as selectionDetailsFn } from './selection-details'
+import './base.css'
+import './dark-theme.css'
 
 export type State = {
   focus: Selection | null,
