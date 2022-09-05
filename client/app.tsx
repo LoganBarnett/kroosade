@@ -6,7 +6,14 @@ import { options } from './data'
 import { type Selection } from './model'
 import rosterFn from './roster'
 import { roster } from './example-roster'
+import { default as buttonFn } from './button'
+import buttonStyles from './button.module.css'
+import { default as booleanSelectionEditorFn } from './boolean-selection-editor'
+import { default as extantSelectionEditorFn } from './extant-selection-editor'
+import { default as numericSelectionEditorFn } from './numeric-selection-editor'
+import { default as repeatingExtantSelectionEditorFn } from './repeating-extant-selection-editor'
 import { default as selectionDetailsFn } from './selection-details'
+import { default as selectionEditorFn } from './selection-editor'
 import './base.css'
 import './dark-theme.css'
 
@@ -14,8 +21,26 @@ export type State = {
   focus: Selection | null,
 }
 
+const AddButton = buttonFn(buttonStyles.add)
 const Roster = rosterFn('roster-parent')
-const SelectionDetails = selectionDetailsFn('selection-details')
+const BooleanSelectionEditor = booleanSelectionEditorFn('boolean-selection')
+const ExtantSelectionEditor = extantSelectionEditorFn('extant-selection')
+const NumericSelectionEditor = numericSelectionEditorFn('numeric-selection')
+const RepeatingExtantSelectionEditor = repeatingExtantSelectionEditorFn(
+  'repeating-extant-selection',
+  AddButton,
+  ExtantSelectionEditor,
+)
+const SelectionEditor = selectionEditorFn(
+  BooleanSelectionEditor,
+  ExtantSelectionEditor,
+  NumericSelectionEditor,
+  RepeatingExtantSelectionEditor,
+)
+const SelectionDetails = selectionDetailsFn(
+  SelectionEditor,
+  'selection-details',
+)
 // @ts-ignore - I guess createRoot isn't supported yet. I have tried
 // react-dom/experimental and react-dom/next as imported types and references,
 // but still no joy.

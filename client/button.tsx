@@ -10,6 +10,8 @@ export type Props = {
   onClick: (e: MouseEvent<HTMLButtonElement>) => void,
 }
 
+export type Component = FC<Props>
+
 export default (className: string): FC<Props> => {
   const component = (props: Props): ReactElement => {
     return <button className={className} onClick={props.onClick}>

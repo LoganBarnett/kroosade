@@ -4,17 +4,21 @@
  */
 
 import React, { type FC, type ReactNode, type ReactElement } from 'react'
-import { type ExtantSelection } from './model'
+import { type ExtantSelection, type Option, } from './model'
 import buttonFn from './button'
+import buttonStyles from './button.module.css'
 import visibilityFn from './visible'
 
 export type Props = {
+  options: ReadonlyArray<Option>,
   selection: ExtantSelection,
 }
 
+export type Component = FC<Props>
+
 export default (className: string): FC<Props> => {
-  const AddButton = buttonFn('')
-  const DeleteButton = buttonFn('')
+  const AddButton = buttonFn(buttonStyles.add)
+  const DeleteButton = buttonFn(buttonStyles.remove)
   const Visibility = visibilityFn('display')
   const component = (props: Props): ReactElement => {
     return <fieldset className={className}>

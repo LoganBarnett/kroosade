@@ -1,5 +1,6 @@
 import React, { type FC, type ReactElement, type ReactNode } from 'react'
 import buttonFn from './button'
+import buttonStyles from './button.module.css'
 import { type Selection } from './model'
 
 export type Props = {
@@ -9,7 +10,7 @@ export type Props = {
 }
 
 export default (className: String): FC<Props> => {
-  const FocusButton = buttonFn('focus-button')
+  const FocusButton = buttonFn(buttonStyles.focus)
   const component = (props: Props): ReactElement => {
     return <>
       <FocusButton onClick={() => props.focus(props.selection)}>

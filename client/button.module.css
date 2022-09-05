@@ -1,0 +1,12 @@
+.add {
+  color: green;
+}
+
+.remove {
+  color: red;
+}
+
+.focus {
+  background-color: #666;
+  color: #00DD99;
+}

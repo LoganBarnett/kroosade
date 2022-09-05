@@ -39,11 +39,26 @@ export type ExclusiveOption = {
  */
 export type NumericOption = {
   children: ReadonlyArray<Entity>,
+  default: number,
   key: string,
   kind: 'numeric-option',
   maximum: number,
   minimum: number,
   name: string,
+}
+
+/**
+ * BooleanOptions are a single on/off selection. It really can work for any two
+ * values. BooleanOptions differ from ExtantSelections in that they are
+ * presented regardless of selection state.
+ */
+export type BooleanOption = {
+  children: ReadonlyArray<Entity>,
+  default: boolean,
+  key: string,
+  kind: 'boolean-option',
+  name: string,
+  value: boolean,
 }
 
 /**
@@ -58,13 +73,24 @@ export type RepeatingExtantOption = {
   name: string,
   key: string,
   kind: 'repeating-extant-option',
-  children: ReadonlyArray<Entity>,
+  children: ReadonlyArray<Option>,
 }
 
 export type Option =
+  | BooleanOption
   | ExclusiveOption
   | ExtantOption
   | NumericOption
+  | RepeatingExtantOption
+
+export type BooleanSelection = {
+  children: ReadonlyArray<Selection>,
+  id: string,
+  kind: 'boolean-selection',
+  optionKey: string,
+  name: string | null,
+  value: boolean,
+}
 
 export type ExtantSelection = {
   children: ReadonlyArray<Selection>,
@@ -84,16 +110,19 @@ export type NumericSelection = {
   value: number,
 }
 
+export type RepeatingExtantSelection = {
+  children: ReadonlyArray<Selection>,
+  id: string,
+  kind: 'repeating-extant-selection',
+  optionKey: string,
+  name: string | null,
+}
+
 export type Selection =
+  | BooleanSelection
   | ExtantSelection
   | NumericSelection
-
-// Old
-export type OrderOfBattle = {
-  name: string,
-  faction: string,
-  powerRating: number,
-}
+  | RepeatingExtantSelection
 
 // New
 
@@ -181,9 +210,25 @@ export type FieldType =
   | 'number'
 
 export type Entity =
-  | CostEntity
+  // | CostEntity
   | Option
-  | FieldEntity
-  | ObjectEntity
-  | UnknownEntity
-  | ValidationEntity
+  // | FieldEntity
+  // | ObjectEntity
+  // | UnknownEntity
+  // | ValidationEntity
+
+export const isExtantSelection = (x: Selection): x is ExtantSelection => {
+  return x.kind == 'extant-selection'
+}
+
+export const isOption = (x: Entity): x is Option  => {
+  switch(x.kind) {
+      case 'extant-option':
+      case 'repeating-extant-option':
+      case 'boolean-option':
+      case 'numeric-option':
+      return true
+      default:
+      return false
+  }
+}
