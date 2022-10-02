@@ -192,6 +192,25 @@ There's a lot of tree shaking going on. Be sure to import the styles you need
 and then actually use them. Only at that point will Webpack see the demand for
 the styles and then process the file accordingly.
 
+**** Troubleshooting steps
+
+***** Run build again
 You may have to run =npm run build= twice - once to generate the file and second
 to generate the corresponding class. We should open a ticket with the
 =css-modules-typescript-loader= folks about this.
+
+***** Make sure the file is named =component.module.css=
+
+If the file is named =component.css=, the file will not be imported as a CSS
+module file, and thus will not get processed.
+
+***** Make sure it isn't being tree shaken
+
+This should both satisfy TypeScript, so the build can complete, and it should
+also mean Webpack will not tree shake out the asset, and therefore exclude it
+from processing.
+
+#+begin_example js
+import linkStyles from './link.module.css'
+((linkStyles as any )['nav-link'] || '').toString()
+#+end_example

@@ -13,7 +13,7 @@
       {
         "name": "typescript-plugin-css-modules",
         "options": {
-          "classnameTransform": "camelCaseOnly",
+          "classnameTransform": "camelCase",
           "customMatcher": "\\.module\\.css$",
           "customRenderer": null,
           "dotenvOptions": {},

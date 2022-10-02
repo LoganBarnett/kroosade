@@ -78,6 +78,7 @@ module.exports = {
             loader: 'css-modules-typescript-loader',
             options: {
               mode: process.env.CI ? 'verify' : 'emit'
+              // mode: 'emit',
             }
           },
           {
@@ -85,6 +86,7 @@ module.exports = {
             options: {
               importLoaders: 0,
               modules: {
+                exportLocalsConvention: 'camelCase',
                 localIdentName: '[name]__[local]__[hash:base64:5]',
               },
               sourceMap: true,
