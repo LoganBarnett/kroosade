@@ -1,8 +1,8 @@
-import { type Option, type Selection } from './model'
+import { type Option, type AppSelection } from './model'
 
 export const optionForSelection = (
   options: ReadonlyArray<Option>,
-  selection: Selection,
+  selection: AppSelection,
   // TypeScript's optional (T?) doesn't work here because it's strictly
   // null, yet Array.prototype.find is marked as returning a possible undefined.
   // This matches the spec as reported by MDN:
@@ -21,7 +21,7 @@ export const optionForSelection = (
 
 export const selectionTitle = (
   options: ReadonlyArray<Option>,
-  selection: Selection,
+  selection: AppSelection,
 ): string => {
   return selection.name != null
     ? selection.name

@@ -1,12 +1,12 @@
 import React, { type ReactElement, type FC } from 'react'
-import { type Option, type Selection, } from './model'
+import { type Option, type AppSelection, } from './model'
 import { default as selectionFn } from './selection'
 import { default as focusSelectionFn } from './focus-selection'
 
 export type Props = {
-  focus: (x: Selection) => void,
+  focus: (x: AppSelection) => void,
   options: ReadonlyArray<Option>,
-  roster: Selection,
+  roster: AppSelection,
 }
 
 export default (className: string): FC<Props> => {

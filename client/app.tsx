@@ -3,7 +3,7 @@
 import React, { type FC, type ReactElement, useState } from 'react'
 import * as ReactDOM from 'react-dom'
 import { options } from './data'
-import { type Selection } from './model'
+import { type AppSelection } from './model'
 import rosterFn from './roster'
 import { roster } from './example-roster'
 import { default as buttonFn } from './button'
@@ -49,12 +49,13 @@ const root = ReactDOM.createRoot(document.querySelector('body'))
 // Use semantic HTML to do the layout. Used example taken from
 // https://gist.github.com/thomd/9220049
 const Page: FC<{}> = (props: {}): ReactElement => {
-  const [state, setState] = useState({
+  const [focusState, setState] = useState({
     focus: null,
   })
-  const focus = (selection: Selection): void => {
-    setState(Object.assign({}, state, { focus: selection }))
+  const focus = (selection: AppSelection): void => {
+    setState(Object.assign({}, focusState, { focus: selection }))
   }
+  const [state, dispatch] = useReducer(appReducer, { roster }, initialState)
   return <>
     <header>
       <hgroup>
@@ -64,11 +65,18 @@ const Page: FC<{}> = (props: {}): ReactElement => {
     <article>
       <h1>Roster</h1>
       <section>
-        <Roster focus={focus} options={options} roster={roster} />
+        {state.roster != null
+        ? <Roster
+            focus={focus}
+            options={options}
+            roster={state.roster}
+          />
+          : <>No roster loaded.</>
+          }
       </section>
       <section>
         <h2>Selection</h2>
-        <SelectionDetails options={options} selection={state.focus} />
+        <SelectionDetails options={options} selection={focusState.focus} />
       </section>
       <section>
         <h2>Info</h2>

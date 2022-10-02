@@ -1,12 +1,12 @@
 import React, { type FC, type ReactElement, type ReactNode } from 'react'
 import buttonFn from './button'
 import buttonStyles from './button.module.css'
-import { type Selection } from './model'
+import { type AppSelection } from './model'
 
 export type Props = {
   children: ReactNode,
-  focus: (s: Selection) => void,
-  selection: Selection,
+  focus: (s: AppSelection) => void,
+  selection: AppSelection,
 }
 
 export default (className: String): FC<Props> => {

@@ -1,12 +1,12 @@
 import React, { type ReactElement, type ReactNode, type FC } from 'react'
-import { type Option, type Selection } from './model'
+import { type Option, type AppSelection } from './model'
 import { selectionTitle } from './utils'
 
 export type Props = {
   children?: ReactNode,
   layer: number,
   options: ReadonlyArray<Option>,
-  selection: Selection,
+  selection: AppSelection,
 }
 
 export default (cssClass: string): FC<Props> => {

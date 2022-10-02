@@ -84,41 +84,53 @@ export type Option =
   | RepeatingExtantOption
 
 export type BooleanSelection = {
-  children: ReadonlyArray<Selection>,
+  children: ReadonlyArray<AppSelection>,
   id: string,
   kind: 'boolean-selection',
-  optionKey: string,
   name: string | null,
+  optionKey: string,
   value: boolean,
 }
 
 export type ExtantSelection = {
-  children: ReadonlyArray<Selection>,
+  children: ReadonlyArray<AppSelection>,
   id: string,
   kind: 'extant-selection',
-  optionKey: string,
   name: string | null,
+  optionKey: string,
   selected: boolean,
 }
 
 export type NumericSelection = {
-  children: ReadonlyArray<Selection>,
+  children: ReadonlyArray<AppSelection>,
   id: string,
   kind: 'numeric-selection',
-  optionKey: string,
   name: string | null,
+  optionKey: string,
   value: number,
 }
 
 export type RepeatingExtantSelection = {
-  children: ReadonlyArray<Selection>,
+  children: ReadonlyArray<AppSelection>,
   id: string,
   kind: 'repeating-extant-selection',
-  optionKey: string,
   name: string | null,
+  optionKey: string,
 }
 
-export type Selection =
+/**
+ * Initially this was named "Selection", but that's a built-in type
+ * https://github.com/microsoft/TypeScript/blob/d90795e799ca8e41aabd6d0852abb585138200ef/lib/lib.dom.d.ts#L13366
+ * and TypeScript will not let us know that we're shadowing this type. If I
+ * forget to import Selection as a type (for whatever reason), I get a crytpic
+ * error: TS2345: Argument of type 'Selection' is not assignable to parameter of
+ * type 'import("/Users/logan/dev/kroosade/client/model").Selection'.
+ * This is big sad.
+ *
+ * We can work around this by simply naming it "AppSelection", but let's not
+ * name it back and cause a whole lot of issues again.
+ */
+export type AppSelection =
   | BooleanSelection
   | ExtantSelection
   | NumericSelection
