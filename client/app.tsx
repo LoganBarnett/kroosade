@@ -14,13 +14,15 @@ import { default as numericSelectionEditorFn } from './numeric-selection-editor'
 import { default as repeatingExtantSelectionEditorFn } from './repeating-extant-selection-editor'
 import { default as selectionDetailsFn } from './selection-details'
 import { default as selectionEditorFn } from './selection-editor'
+import { default as visibleRenderFn } from './visible'
 import './base.css'
 import './dark-theme.css'
 
-export type State = {
+export type ComponentState = {
   focus: Selection | null,
 }
 
+const VisibleRender = visibleRenderFn('rendering')
 const AddButton = buttonFn(buttonStyles.add)
 const Roster = rosterFn('roster-parent')
 const BooleanSelectionEditor = booleanSelectionEditorFn('boolean-selection')
@@ -29,6 +31,7 @@ const NumericSelectionEditor = numericSelectionEditorFn('numeric-selection')
 const RepeatingExtantSelectionEditor = repeatingExtantSelectionEditorFn(
   'repeating-extant-selection',
   AddButton,
+  VisibleRender,
   ExtantSelectionEditor,
 )
 const SelectionEditor = selectionEditorFn(

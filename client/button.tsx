@@ -1,13 +1,12 @@
 import React, {
   type FC,
   type ReactElement,
-  type MouseEvent,
   type ReactNode,
 } from 'react'
 
 export type Props = {
   children: ReactNode,
-  onClick: (e: MouseEvent<HTMLButtonElement>) => void,
+  onClick: React.MouseEventHandler<HTMLButtonElement>,
 }
 
 export type Component = FC<Props>

@@ -19,6 +19,8 @@ export type Props = {
   visible: boolean,
 }
 
+export type Component = FC<Props>
+
 export default (visibilityType: VisibilityType): FC<Props> => {
   const component = (props: Props): ReactElement => {
     if(visibilityType == 'rendering') {
