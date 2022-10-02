@@ -1,7 +1,17 @@
 /// <reference types="react/experimental" />
 /// <reference types="react/next" />
-import React, { type FC, type ReactElement, useState } from 'react'
+import React, {
+  type FC,
+  type ReactElement,
+  useReducer,
+  useState,
+} from 'react'
 import * as ReactDOM from 'react-dom'
+import {
+  type AppState,
+  reducer as appReducer,
+  initialState,
+} from './app-reducer'
 import { options } from './data'
 import { type AppSelection } from './model'
 import rosterFn from './roster'
