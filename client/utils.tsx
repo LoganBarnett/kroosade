@@ -1,3 +1,4 @@
+import { always, drop, head, identity, reduce } from 'ramda'
 import { type Option, type AppSelection } from './model'
 
 export const optionForSelection = (
@@ -44,33 +45,79 @@ type Traversal<A> = (a: A) => A | null | undefined
  * of a tree, then the path-like entity is a series of traversal functions,
  * ready to be applied for actually gathering the data.
  */
-export const deepFind = <A,>(
+export const pathTo = <A,>(
   traversals: ReadonlyArray<Traversal<A>>,
   compare: (x: A, y: A) => boolean,
   traverse: (a: A) => ReadonlyArray<A>,
   current: A,
   desired: A,
-): Array<Traversal<A>> => {
-  const self = traversals.concat([(parent) => {
-    return traverse(parent).find(compare.bind(null, current))
-  }])
+): ReadonlyArray<Traversal<A>> => {
   if(compare(desired, current)) {
-    return self
+    return traversals
   } else {
     return traverse(current).reduce((acc, child) => {
-      const ts = deepFind(self, compare, traverse, child, desired)
+      const self = traversals.concat([(parent) => {
+        const found = traverse(parent).find(compare.bind(null, child))
+        return found
+      }])
+      const ts = pathTo(self, compare, traverse, child, desired)
       if(ts != traversals) {
         return ts
       } else {
         return acc
       }
-    }, [] as Array<Traversal<A>>)
+    }, [] as ReadonlyArray<Traversal<A>>)
   }
+}
+
+/**
+ * Using a series of traversals provided by pathTo, return the value found by
+ * the traversals. Since the structure might have altered since we found our
+ * traversals, the traversals may fail, in which case it returns null/undefined.
+ */
+export const findByPath = <A,>(
+  root: A,
+  traversals: ReadonlyArray<Traversal<A>>,
+): A | undefined | null => {
+  return reduce(
+    (prev, traversal) => {
+      if(prev == null) {
+        return null
+      } else {
+        return traversal(prev)
+      }
+    },
+    root as A | undefined | null,
+    traversals,
+  )
 }
 
 /**
  * Modifies a deeply nested structure in an immutable fashion.
  */
-export const deepModify = () => {
-
+export const deepModify = <A,>(
+  modifyChild: (child: A) => A,
+  assignModification: (parent: A, child: A) => A,
+  traversals: ReadonlyArray<Traversal<A>>,
+  current: A,
+): A => {
+  const traversal = head(traversals)
+  if(traversal == null) {
+    // We've reached the bottom of the tree. Time to update.
+    return modifyChild(current)
+  } else {
+    const child = traversal(current)
+    if(child == null) {
+      console.error('Traversal failed for', current)
+      return current
+    } else {
+      const newChild = deepModify(
+        modifyChild,
+        assignModification,
+        drop(1, traversals),
+        child,
+      )
+      return assignModification(current, newChild)
+    }
+  }
 }

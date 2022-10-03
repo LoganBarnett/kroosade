@@ -229,7 +229,7 @@ export type Entity =
   // | UnknownEntity
   // | ValidationEntity
 
-export const isExtantSelection = (x: Selection): x is ExtantSelection => {
+export const isExtantSelection = (x: AppSelection): x is ExtantSelection => {
   return x.kind == 'extant-selection'
 }
 

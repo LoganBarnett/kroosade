@@ -1,8 +1,10 @@
 /**
  */
 
-import React, { type FC, type ReactElement } from 'react'
+import React, { useContext, type FC, type ReactElement } from 'react'
+import { selectionChangeNumberAction } from './app-reducer'
 import { type NumericSelection, type Option } from './model'
+import { Context } from './reducer-provider'
 
 export type Props = {
   options: ReadonlyArray<Option>,
@@ -13,8 +15,15 @@ export type Component = FC<Props>
 
 export default (className: string): FC<Props> => {
   const component = (props: Props): ReactElement => {
+    const { state, dispatch } = useContext(Context)
+    const onChange = (e: React.FormEvent<HTMLInputElement>) => {
+      dispatch(selectionChangeNumberAction(
+        props.selection,
+        parseInt(e.currentTarget.value),
+      ))
+    }
     return <fieldset className={className}>
-      <input type="number" value={props.selection.value} />
+      <input type="number" value={props.selection.value} onChange={onChange}/>
     </fieldset>
   }
   component.displayName = 'NumericSelectionEditor'

@@ -1,6 +1,6 @@
 import {
   type Option,
-  type Selection,
+  type AppSelection,
 } from './model'
 import {
   type Component as BooleanSelectionEditorComponent,
@@ -18,7 +18,7 @@ import React, { type FC, type ReactNode, type ReactElement } from 'react'
 
 export type Props = {
   options: ReadonlyArray<Option>,
-  selection: Selection,
+  selection: AppSelection,
 }
 
 export type Component = FC<Props>
@@ -31,14 +31,14 @@ export default (
 ): FC<Props> => {
   const selectionEditor = (
     options: ReadonlyArray<Option>,
-    x: Selection,
+    x: AppSelection,
   ): ReactElement => {
     // TypeScript derping. Inspired by:
     // https://dev.to/babak/exhaustive-type-checking-with-typescript-4l3f
     const exhaustive = (kind: string, selection: never): ReactElement => {
-      return <>Selection '{kind}' in '{selection}' not supported!</>
+      return <>AppSelection '{kind}' in '{selection}' not supported!</>
     }
-    // Capture before TypeScript makes the Selection into a `never'.
+    // Capture before TypeScript makes the AppSelection into a `never'.
     const kind = x.kind
     switch (x.kind) {
       case 'boolean-selection':

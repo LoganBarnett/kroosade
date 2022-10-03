@@ -1,6 +1,6 @@
-import { type Selection } from './model'
+import { type AppSelection } from './model'
 
-export const roster: Selection = {
+export const roster: AppSelection = {
   children: [
     {
       children: [
