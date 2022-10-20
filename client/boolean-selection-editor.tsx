@@ -2,10 +2,10 @@
  */
 
 import React, { type FC, type ReactElement } from 'react'
-import { type BooleanSelection, type Option } from './model'
+import { type BooleanSelection, type AppOption } from './model'
 
 export type Props = {
-  options: ReadonlyArray<Option>,
+  options: ReadonlyArray<AppOption>,
   selection: BooleanSelection,
 }
 

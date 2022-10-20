@@ -3,11 +3,11 @@
 
 import React, { useContext, type FC, type ReactElement } from 'react'
 import { selectionChangeNumberAction } from './app-reducer'
-import { type NumericSelection, type Option } from './model'
+import { type NumericSelection, type AppOption } from './model'
 import { Context } from './reducer-provider'
 
 export type Props = {
-  options: ReadonlyArray<Option>,
+  options: ReadonlyArray<AppOption>,
   selection: NumericSelection,
 }
 
@@ -15,7 +15,7 @@ export type Component = FC<Props>
 
 export default (className: string): FC<Props> => {
   const component = (props: Props): ReactElement => {
-    const { state, dispatch } = useContext(Context)
+    const { dispatch } = useContext(Context)
     const onChange = (e: React.FormEvent<HTMLInputElement>) => {
       dispatch(selectionChangeNumberAction(
         props.selection,

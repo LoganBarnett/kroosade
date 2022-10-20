@@ -1,5 +1,5 @@
 import {
-  type Option,
+  type AppOption,
   type AppSelection,
 } from './model'
 import {
@@ -20,7 +20,7 @@ import {
 import React, { type FC, type ReactNode, type ReactElement } from 'react'
 
 export type Props = {
-  options: ReadonlyArray<Option>,
+  options: ReadonlyArray<AppOption>,
   selection: AppSelection,
 }
 
@@ -34,7 +34,7 @@ export default (
   RepeatingExtantSelectionEditor: RepeatingExtantSelectionEditorComponent,
 ): FC<Props> => {
   const selectionEditor = (
-    options: ReadonlyArray<Option>,
+    options: ReadonlyArray<AppOption>,
     x: AppSelection,
   ): ReactElement => {
     // TypeScript derping. Inspired by:

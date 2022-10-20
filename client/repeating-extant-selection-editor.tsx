@@ -7,7 +7,7 @@ import React, {
   useState
 } from 'react'
 import {
-  type Option,
+  type AppOption,
   type RepeatingExtantSelection,
   isExtantSelection,
   isOption,
@@ -20,7 +20,7 @@ import { optionForSelection, selectionTitle } from './utils'
 import { type Component as VisibleComponent } from './visible'
 
 export type Props = {
-  options: ReadonlyArray<Option>,
+  options: ReadonlyArray<AppOption>,
   selection: RepeatingExtantSelection,
 }
 
@@ -28,10 +28,10 @@ export type Component = FC<Props>
 
 type State = {
   adding: boolean,
-  newOptionCandidate: Option | null | undefined,
+  newOptionCandidate: AppOption | null | undefined,
 }
 
-const defaultState = (option: Option | null | undefined): State => {
+const defaultState = (option: AppOption | null | undefined): State => {
   return {
     adding: false,
     newOptionCandidate: option?.children.filter(isOption)[0],
@@ -41,7 +41,7 @@ const defaultState = (option: Option | null | undefined): State => {
 const setNewOptionCandidate = (
   setState: (x: State) => void,
   state: State,
-  option: Option | null | undefined,
+  option: AppOption | null | undefined,
   e: React.ChangeEvent<HTMLSelectElement>,
 ): void => {
   setState({

@@ -11,7 +11,7 @@ export type ExtantOption = {
   // Validations, costs, and sub-options are all handed here as children.
   // Separating them into separate fields doesn't carry big distinctions, and
   // any additional data types would necessitate adding more fields onto
-  // Option types.
+  // AppOption types.
   children: ReadonlyArray<Entity>,
 }
 
@@ -29,7 +29,7 @@ export type ExclusiveOption = {
   // Validations, costs, and sub-options are all handed here as children.
   // Separating them into separate fields doesn't carry big distinctions, and
   // any additional data types would necessitate adding more fields onto
-  // Option types.
+  // AppOption types.
   children: ReadonlyArray<Entity>,
 }
 
@@ -73,10 +73,10 @@ export type RepeatingExtantOption = {
   name: string,
   key: string,
   kind: 'repeating-extant-option',
-  children: ReadonlyArray<Option>,
+  children: ReadonlyArray<AppOption>,
 }
 
-export type Option =
+export type AppOption =
   | BooleanOption
   | ExclusiveOption
   | ExtantOption
@@ -233,7 +233,7 @@ export type FieldType =
 
 export type Entity =
   // | CostEntity
-  | Option
+  | AppOption
   // | FieldEntity
   // | ObjectEntity
   // | UnknownEntity
@@ -243,7 +243,7 @@ export const isExtantSelection = (x: AppSelection): x is ExtantSelection => {
   return x.kind == 'extant-selection'
 }
 
-export const isOption = (x: Entity): x is Option  => {
+export const isOption = (x: Entity): x is AppOption  => {
   switch(x.kind) {
       case 'extant-option':
       case 'repeating-extant-option':

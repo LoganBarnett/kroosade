@@ -1,10 +1,10 @@
 import React, { type FC, type ReactNode, type ReactElement } from 'react'
-import { type Option, type AppSelection } from './model'
+import { type AppOption, type AppSelection } from './model'
 import { selectionTitle } from './utils'
 import { type Component as SelectionEditorComponent } from './selection-editor'
 
 export type Props = {
-  options: ReadonlyArray<Option>,
+  options: ReadonlyArray<AppOption>,
   selection: AppSelection | undefined | null,
 }
 

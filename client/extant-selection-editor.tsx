@@ -4,13 +4,13 @@
  */
 
 import React, { type FC, type ReactNode, type ReactElement } from 'react'
-import { type ExtantSelection, type Option, } from './model'
+import { type ExtantSelection, type AppOption, } from './model'
 import buttonFn from './button'
 import buttonStyles from './button.module.css'
 import visibilityFn from './visible'
 
 export type Props = {
-  options: ReadonlyArray<Option>,
+  options: ReadonlyArray<AppOption>,
   selection: ExtantSelection,
 }
 

@@ -1,8 +1,8 @@
 import { always, drop, head, identity, reduce } from 'ramda'
-import { type Option, type AppSelection } from './model'
+import { type AppOption, type AppSelection } from './model'
 
 export const optionForSelection = (
-  options: ReadonlyArray<Option>,
+  options: ReadonlyArray<AppOption>,
   selection: AppSelection,
   // TypeScript's optional (T?) doesn't work here because it's strictly
   // null, yet Array.prototype.find is marked as returning a possible undefined.
@@ -16,19 +16,19 @@ export const optionForSelection = (
   //
   // I will say though, this makes me really want to get a proper Result an
   // Optional types going.
-): Option | null | undefined => {
+): AppOption | null | undefined => {
   return options.find(o => o.key == selection.optionKey)
 }
 
 export const selectionTitle = (
-  options: ReadonlyArray<Option>,
+  options: ReadonlyArray<AppOption>,
   selection: AppSelection,
 ): string => {
   return selection.name != null
     ? selection.name
     : (
       optionForSelection(options, selection)?.name
-      || `Option '${selection.optionKey}' not found!`
+      || `AppOption '${selection.optionKey}' not found!`
     )
 }
 
