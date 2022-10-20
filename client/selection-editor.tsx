@@ -6,6 +6,9 @@ import {
   type Component as BooleanSelectionEditorComponent,
 } from './boolean-selection-editor'
 import {
+  type Component as ExclusiveSelectionEditorComponent,
+} from './exclusive-selection-editor'
+import {
   type Component as ExtantSelectionEditorComponent,
 } from './extant-selection-editor'
 import {
@@ -25,6 +28,7 @@ export type Component = FC<Props>
 
 export default (
   BooleanSelectionEditor: BooleanSelectionEditorComponent,
+  ExclusiveSelectionEditor: ExclusiveSelectionEditorComponent,
   ExtantSelectionEditor: ExtantSelectionEditorComponent,
   NumericSelectionEditor: NumericSelectionEditorComponent,
   RepeatingExtantSelectionEditor: RepeatingExtantSelectionEditorComponent,
@@ -43,6 +47,8 @@ export default (
     switch (x.kind) {
       case 'boolean-selection':
         return <BooleanSelectionEditor options={options} selection={x} />
+      case 'exclusive-selection':
+        return <ExclusiveSelectionEditor options={options} selection={x} />
       case 'extant-selection':
         return <ExtantSelectionEditor options={options} selection={x} />
       case 'numeric-selection':

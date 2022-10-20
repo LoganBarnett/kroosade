@@ -10,6 +10,7 @@ import { type AppSelection } from './model'
 import { default as buttonFn } from './button'
 import buttonStyles from './button.module.css'
 import { default as booleanSelectionEditorFn } from './boolean-selection-editor'
+import { default as exclusiveSelectionEditorFn } from './exclusive-selection-editor'
 import { default as extantSelectionEditorFn } from './extant-selection-editor'
 import { default as numericSelectionEditorFn } from './numeric-selection-editor'
 import { default as repeatingExtantSelectionEditorFn } from './repeating-extant-selection-editor'
@@ -31,6 +32,7 @@ const AddButton = buttonFn(buttonStyles.add)
 const BooleanSelectionEditor = booleanSelectionEditorFn('boolean-selection')
 const ExtantSelectionEditor = extantSelectionEditorFn('extant-selection')
 const NumericSelectionEditor = numericSelectionEditorFn('numeric-selection')
+const ExclusiveSelectionEditor = exclusiveSelectionEditorFn('exclusive-selection')
 const RepeatingExtantSelectionEditor = repeatingExtantSelectionEditorFn(
   'repeating-extant-selection',
   AddButton,
@@ -39,6 +41,7 @@ const RepeatingExtantSelectionEditor = repeatingExtantSelectionEditorFn(
 )
 const SelectionEditor = selectionEditorFn(
   BooleanSelectionEditor,
+  ExclusiveSelectionEditor,
   ExtantSelectionEditor,
   NumericSelectionEditor,
   RepeatingExtantSelectionEditor,

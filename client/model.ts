@@ -92,6 +92,15 @@ export type BooleanSelection = {
   value: boolean,
 }
 
+export type ExclusiveSelection = {
+  children: ReadonlyArray<AppSelection>,
+  id: string,
+  kind: 'exclusive-selection',
+  name: string | null,
+  optionKey: string,
+  selected: string,
+}
+
 export type ExtantSelection = {
   children: ReadonlyArray<AppSelection>,
   id: string,
@@ -132,6 +141,7 @@ export type RepeatingExtantSelection = {
  */
 export type AppSelection =
   | BooleanSelection
+  | ExclusiveSelection
   | ExtantSelection
   | NumericSelection
   | RepeatingExtantSelection

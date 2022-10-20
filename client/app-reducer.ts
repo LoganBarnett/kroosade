@@ -1,4 +1,8 @@
-import { type NumericSelection, type AppSelection } from './model'
+import {
+  type AppSelection,
+  type ExclusiveSelection,
+  type NumericSelection,
+} from './model'
 import { append, equals, find, prop, update } from 'ramda'
 import { deepModify, findByPath, pathTo } from './utils'
 
@@ -18,6 +22,12 @@ export type SelectionAddChildAction = {
   type: 'selection-add-child',
 }
 
+export type SelectionChangeExclusiveAction = {
+  selection: ExclusiveSelection,
+  type: 'selection-change-exclusive',
+  selected: string,
+}
+
 export type SelectionChangeNumberAction = {
   selection: NumericSelection,
   type: 'selection-change-number',
@@ -26,6 +36,7 @@ export type SelectionChangeNumberAction = {
 
 export type AppAction =
   | SelectionAddChildAction
+  | SelectionChangeExclusiveAction
   | SelectionChangeNumberAction
   | SelectionFocusAction
 
@@ -44,6 +55,17 @@ export const selectionAddChildrenAction = (
     type: 'selection-add-child',
     selection,
     newChild,
+  }
+}
+
+export const selectionChangeExclusiveAction = (
+  selection: ExclusiveSelection,
+  selected: string,
+): SelectionChangeExclusiveAction => {
+  return {
+    selection,
+    type: 'selection-change-exclusive',
+    selected,
   }
 }
 
@@ -76,6 +98,21 @@ export const selectionAddChildReducer = (
   }
 }
 
+export const selectionChangeExclusiveReducer = (
+  action: AppAction,
+  selection: AppSelection,
+): AppSelection => {
+  if(action.type == 'selection-change-exclusive') {
+    return {
+      ...action.selection,
+      selected: action.selected,
+    }
+  } else {
+    return selection
+  }
+}
+
+
 export const selectionChangeNumberReducer = (
   action: AppAction,
   selection: AppSelection,
@@ -103,6 +140,8 @@ const selectionReducerFromAction = (action: AppAction): SelectionReducer => {
   switch(action.type) {
     case 'selection-add-child':
       return selectionAddChildReducer
+    case 'selection-change-exclusive':
+      return selectionChangeExclusiveReducer
     case 'selection-change-number':
       return selectionChangeNumberReducer
     default:
@@ -136,7 +175,9 @@ const adjustFocus = (
 export const reducer = (state: AppState, action: AppAction): AppState => {
   switch(action.type) {
     case 'selection-add-child':
+    case 'selection-change-exclusive':
     case 'selection-change-number':
+      console.log('action', action)
       if(state.roster != null) {
         const path = pathTo(
           [],
