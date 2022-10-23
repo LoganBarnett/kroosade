@@ -24,7 +24,7 @@ export default (className: string): FC<Props> => {
     if(option != null) {
       return <fieldset className={className}>
         {option.children.filter(isOption).map(child => {
-          return <div key={child.key}>
+          return <div key={child.key} data-id={child.key}>
             <input
               checked={props.selection.selected == child.key}
               name={props.selection.id}

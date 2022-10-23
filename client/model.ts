@@ -5,6 +5,7 @@ import { v4 } from 'uuid'
  * the selection, or the lack of presence of the selection.
  */
 export type ExtantOption = {
+  autoAdd: boolean,
   name: string,
   key: string,
   kind: 'extant-option',
@@ -23,6 +24,8 @@ export type ExtantOption = {
  * For a flat selection, use ExclusiveOption with ExtantOption children.
  */
 export type ExclusiveOption = {
+  autoAdd: boolean,
+  default: string,
   name: string,
   key: string,
   kind: 'exclusive-option',
@@ -38,6 +41,7 @@ export type ExclusiveOption = {
  * minimums and maximums.
  */
 export type NumericOption = {
+  autoAdd: boolean,
   children: ReadonlyArray<Entity>,
   default: number,
   key: string,
@@ -53,6 +57,7 @@ export type NumericOption = {
  * presented regardless of selection state.
  */
 export type BooleanOption = {
+  autoAdd: boolean,
   children: ReadonlyArray<Entity>,
   default: boolean,
   key: string,
@@ -70,6 +75,7 @@ export type BooleanOption = {
  * selection could have its own customizations.
  */
 export type RepeatingExtantOption = {
+  autoAdd: boolean,
   name: string,
   key: string,
   kind: 'repeating-extant-option',
@@ -255,11 +261,16 @@ export const isOption = (x: Entity): x is AppOption  => {
   }
 }
 
+export const selectionChildren = (x: AppOption): ReadonlyArray<AppSelection> => {
+  return x.children.filter(y => y.autoAdd).map(optionToSelection)
+}
+
+// TODO: These need to recursively add children, but conditionally.
 export const optionToSelection = (x: AppOption): AppSelection => {
   switch(x.kind) {
     case 'boolean-option':
       const bs: BooleanSelection = {
-        children: [],
+        children: selectionChildren(x),
         id: v4(),
         kind: 'boolean-selection',
         name: x.name,
@@ -269,7 +280,7 @@ export const optionToSelection = (x: AppOption): AppSelection => {
       return bs
     case 'extant-option':
       const exts: ExtantSelection = {
-        children: [],
+        children: selectionChildren(x),
         id: v4(),
         kind: 'extant-selection',
         name: x.name,
@@ -279,19 +290,17 @@ export const optionToSelection = (x: AppOption): AppSelection => {
       return exts
     case 'exclusive-option':
       const exco: ExclusiveSelection = {
-        children: [],
+        children: selectionChildren(x),
         id: v4(),
         kind: 'exclusive-selection',
         name: x.name,
         optionKey: x.key,
-        // TODO: Fix this. We need an actual selection here. Perhaps the option
-        // can provide a default value.
-        selected: '',
+        selected: x.default,
       }
       return exco
     case 'numeric-option':
       const ns: NumericSelection = {
-        children: [],
+        children: selectionChildren(x),
         id: v4(),
         kind: 'numeric-selection',
         name: x.name,
@@ -301,7 +310,7 @@ export const optionToSelection = (x: AppOption): AppSelection => {
       return ns
     case 'repeating-extant-option':
       const reo: RepeatingExtantSelection = {
-        children: [],
+        children: selectionChildren(x),
         id: v4(),
         kind: 'repeating-extant-selection',
         name: x.name,
