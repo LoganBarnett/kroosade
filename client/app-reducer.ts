@@ -5,6 +5,8 @@ import {
 } from './model'
 import { append, equals, find, prop, update } from 'ramda'
 import { deepModify, findByPath, pathTo } from './utils'
+import Result from './result'
+import Option, { type Option as OptionType } from './option'
 
 export type AppState = {
   roster: AppSelection | null | undefined,
@@ -153,42 +155,44 @@ const adjustFocus = (
   root: AppSelection,
   originalFocus: AppSelection | null | undefined,
   modified: AppSelection | null | undefined,
-): AppSelection | null | undefined => {
+): OptionType<AppSelection> => {
   if(originalFocus?.id == modified?.id) {
-    return modified
+    return Option.intoOption(modified)
   } else if (originalFocus != null ){
-    return findByPath(
-      root,
-      pathTo(
+    const path = pathTo(
         [],
         (s1: AppSelection, s2: AppSelection): boolean => s1.id == s2.id,
         prop('children'),
         root,
         originalFocus,
-      ),
-    )
+      )
+    return findByPath(
+      root,
+      path.unwrapOr([]),
+    ) // .inspect(focus => console.log('Found focus', focus))
   } else {
-    return null
+    return Option.none
   }
 }
 
 export const reducer = (state: AppState, action: AppAction): AppState => {
+  console.log('action', action)
   switch(action.type) {
     case 'selection-add-child':
     case 'selection-change-exclusive':
     case 'selection-change-number':
-      console.log('action', action)
       if(state.roster != null) {
+        // Capture so TypeScript doesn't lose the refinement.
+        const roster = state.roster
         const path = pathTo(
           [],
-          equals,
+          (s1: AppSelection, s2: AppSelection): boolean => s1.id == s2.id,
           prop('children'),
-          state.roster,
+          roster,
           action.selection,
-        )
-        const original = findByPath(state.roster, path)
-        if(original != null) {
-          const newRoot = deepModify(
+        ).unwrapOr([])
+        return findByPath(state.roster, path).andThen(original => {
+          return deepModify(
             selectionReducerFromAction(action).bind(null, action),
             (parent, child) => {
               const i = parent.children.indexOf(original)
@@ -198,18 +202,25 @@ export const reducer = (state: AppState, action: AppAction): AppState => {
               }
             },
             path,
-            state.roster,
-          )
-          return {
-            ...state,
-            focus: adjustFocus(newRoot, state.focus, findByPath(newRoot, path)),
-            roster: newRoot,
-          }
-        } else {
-          console.error('Got roster update when roster was null', action)
+            roster,
+          ).andThen((newRoot): OptionType<AppState> => {
+            return findByPath(newRoot, path).map((modified): AppState => {
+              return {
+                ...state,
+                focus: adjustFocus(
+                  newRoot,
+                  state.focus,
+                  modified,
+                ).intoNullable(),
+                roster: newRoot,
+              }
+            })
+          })
+        }).unwrapOrElse(() => {
           // Error!
+          console.error('Got roster update when roster was null', action)
           return state
-        }
+        })
       } else {
         console.error('Unhandled action type', action)
         // Error!
