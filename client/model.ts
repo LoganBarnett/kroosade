@@ -1,4 +1,4 @@
-// Newer
+import { v4 } from 'uuid'
 
 /**
  * ExtantOptions represent an option whose selection is merely the presence of
@@ -252,5 +252,61 @@ export const isOption = (x: Entity): x is AppOption  => {
       return true
       default:
       return false
+  }
+}
+
+export const optionToSelection = (x: AppOption): AppSelection => {
+  switch(x.kind) {
+    case 'boolean-option':
+      const bs: BooleanSelection = {
+        children: [],
+        id: v4(),
+        kind: 'boolean-selection',
+        name: x.name,
+        optionKey: x.key,
+        value: true,
+      }
+      return bs
+    case 'extant-option':
+      const exts: ExtantSelection = {
+        children: [],
+        id: v4(),
+        kind: 'extant-selection',
+        name: x.name,
+        optionKey: x.key,
+        selected: true,
+      }
+      return exts
+    case 'exclusive-option':
+      const exco: ExclusiveSelection = {
+        children: [],
+        id: v4(),
+        kind: 'exclusive-selection',
+        name: x.name,
+        optionKey: x.key,
+        // TODO: Fix this. We need an actual selection here. Perhaps the option
+        // can provide a default value.
+        selected: '',
+      }
+      return exco
+    case 'numeric-option':
+      const ns: NumericSelection = {
+        children: [],
+        id: v4(),
+        kind: 'numeric-selection',
+        name: x.name,
+        optionKey: x.key,
+        value: 0,
+      }
+      return ns
+    case 'repeating-extant-option':
+      const reo: RepeatingExtantSelection = {
+        children: [],
+        id: v4(),
+        kind: 'repeating-extant-selection',
+        name: x.name,
+        optionKey: x.key,
+      }
+      return reo
   }
 }

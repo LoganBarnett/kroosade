@@ -3,6 +3,7 @@
     "@types/ramda": "0.28.13",
     "@types/react": "18.0.9",
     "@types/react-dom": "18.0.4",
+    "@types/uuid": "8.3.4",
     "ajv": "8.11.0",
     "ajv-json-loader": "0.2.0",
     "autoprefixer": "10.4.7",
@@ -24,7 +25,8 @@
     "jailed": "0.3.1",
     "ramda": "0.28.0",
     "react": "18.1.0",
-    "react-dom": "18.1.0"
+    "react-dom": "18.1.0",
+    "uuid": "9.0.0"
   },
   "scripts": {
     "build": "webpack",

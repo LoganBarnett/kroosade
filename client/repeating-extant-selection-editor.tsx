@@ -4,18 +4,22 @@ import React, {
   type FC,
   type MouseEvent,
   type ReactElement,
-  useState
+  useContext,
+  useState,
 } from 'react'
+import { type AppAction, selectionAddChildrenAction } from './app-reducer'
+import { type Component as ButtonComponent } from './button'
+import {
+  type Component as ExtantSelectionEditorComponent,
+} from './extant-selection-editor'
 import {
   type AppOption,
   type RepeatingExtantSelection,
   isExtantSelection,
   isOption,
+  optionToSelection,
 } from './model'
-import { type Component as ButtonComponent } from './button'
-import {
-  type Component as ExtantSelectionEditorComponent,
-} from './extant-selection-editor'
+import { Context } from './reducer-provider'
 import { optionForSelection, selectionTitle } from './utils'
 import { type Component as VisibleComponent } from './visible'
 
@@ -55,11 +59,14 @@ const setNewOptionCandidate = (
 const addSelection = (
   selection: RepeatingExtantSelection,
   setState: (x: State) => void,
-  state: State,
+  dispatch: React.Dispatch<AppAction>,
+  toAdd: AppOption,
+  // state: State,
   e: MouseEvent<HTMLButtonElement>,
 ): void => {
   e.preventDefault()
-  setState({...state, adding: false})
+  dispatch(selectionAddChildrenAction(selection, optionToSelection(toAdd)))
+  setState({ newOptionCandidate: null, adding: false})
 }
 
 export default (
@@ -69,6 +76,7 @@ export default (
   ExtantSelectionEditor: ExtantSelectionEditorComponent,
 ): FC<Props> => {
   const component = (props: Props): ReactElement => {
+    const { dispatch } = useContext(Context)
     const option = optionForSelection(props.options, props.selection)
     const [state, setState] = useState(Object.assign(
       {},
@@ -96,7 +104,14 @@ export default (
         </select>
         {state.newOptionCandidate != null
           ? <AddButton
-            onClick={addSelection.bind(null, props.selection, setState, state)}
+            onClick={addSelection.bind(
+              null,
+              props.selection,
+              setState,
+              dispatch,
+              state.newOptionCandidate,
+              // state,
+            )}
           >
             add {state.newOptionCandidate.name}
           </AddButton>
