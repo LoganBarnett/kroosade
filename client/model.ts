@@ -305,7 +305,7 @@ export const optionToSelection = (x: AppOption): AppSelection => {
         kind: 'numeric-selection',
         name: x.name,
         optionKey: x.key,
-        value: 0,
+        value: x.default,
       }
       return ns
     case 'repeating-extant-option':
