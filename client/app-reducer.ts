@@ -175,7 +175,21 @@ const adjustFocus = (
   }
 }
 
-export const reducer = (state: AppState, action: AppAction): AppState => {
+/**
+ * Logs reducer activity. Wrap this around the main reducer to achieve logging.
+ */
+export const logReducer = (
+  reducer: (state: AppState, action: AppAction) => AppState,
+  state: AppState,
+  action: AppAction
+): AppState => {
+  console.log('Before State', state)
+  const newState = reducer(state, action)
+  console.log('After State', newState)
+  return newState
+}
+
+const appReducer = (state: AppState, action: AppAction): AppState => {
   console.log('action', action)
   switch(action.type) {
     case 'selection-add-child':
@@ -234,4 +248,8 @@ export const reducer = (state: AppState, action: AppAction): AppState => {
   }
   console.error('Not sure what this is', action)
   return state
+}
+
+export const reducer = (state: AppState, action: AppAction): AppState => {
+  return logReducer(appReducer, state, action)
 }
