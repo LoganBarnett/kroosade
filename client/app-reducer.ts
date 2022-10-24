@@ -209,10 +209,22 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
           return deepModify(
             selectionReducerFromAction(action).bind(null, action),
             (parent, child) => {
-              const i = parent.children.indexOf(original)
-              return {
-                ...parent,
-                children: update(i, child, parent.children),
+              const i = parent.children.findIndex(x => x.id == child.id)
+              // This really shouldn't be possible.
+              if(i < 0) {
+                console.error(
+                  'Error: found original',
+                  original,
+                  'at',
+                  i,
+                  parent.children[i]
+                )
+                return parent
+              } else {
+                return {
+                  ...parent,
+                  children: update(i, child, parent.children),
+                }
               }
             },
             path,
