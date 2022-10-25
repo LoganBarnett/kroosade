@@ -30,21 +30,18 @@ export type Component = FC<Props>
 
 export default (className: string): FC<Props> => {
   const FocusButton = buttonFn(buttonStyles.focus)
-  const DeleteButton = buttonFn(buttonStyles.remove)
   const Visibility = visibilityFn('display')
   const component = (props: Props): ReactElement => {
     const { state, dispatch } = useContext(Context)
     const focusFn = (s: AppSelection) => dispatch(selectionFocusAction(s))
     return <fieldset className={className}>
       <Visibility visible={props.selection.selected}>
+        {selectionTitle(props.options, props.selection)}
         <Visibility visible={props.selection.id != state.focus?.id}>
           <FocusButton onClick={() => focusFn(props.selection)}>
             focus
           </FocusButton>
         </Visibility>
-        <DeleteButton onClick={() => {}}>
-          remove {selectionTitle(props.options, props.selection)}
-        </DeleteButton>
       </Visibility>
     </fieldset>
   }

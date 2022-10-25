@@ -29,6 +29,7 @@ export type Props = {
 const Roster = rosterFn('roster-parent')
 const VisibleRender = visibleRenderFn('rendering')
 const AddButton = buttonFn(buttonStyles.add)
+const DeleteButton = buttonFn(buttonStyles.remove)
 const BooleanSelectionEditor = booleanSelectionEditorFn('boolean-selection')
 const ExtantSelectionEditor = extantSelectionEditorFn('extant-selection')
 const NumericSelectionEditor = numericSelectionEditorFn('numeric-selection')
@@ -36,6 +37,7 @@ const ExclusiveSelectionEditor = exclusiveSelectionEditorFn('exclusive-selection
 const RepeatingExtantSelectionEditor = repeatingExtantSelectionEditorFn(
   'repeating-extant-selection',
   AddButton,
+  DeleteButton,
   VisibleRender,
   ExtantSelectionEditor,
 )

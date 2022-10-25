@@ -3,7 +3,7 @@ import {
   type ExclusiveSelection,
   type NumericSelection,
 } from './model'
-import { append, equals, find, prop, update } from 'ramda'
+import { append, equals, find, prop, remove, update } from 'ramda'
 import { deepModify, findByPath, pathTo } from './utils'
 import Result from './result'
 import Option, { type Option as OptionType } from './option'
@@ -62,6 +62,28 @@ export const selectionChangeNumberReducer = (
   }
 }
 
+export const selectionRemoveChildReducer = (
+  action: AppAction,
+  selection: AppSelection,
+): AppSelection => {
+  if(action.type == 'selection-remove-child') {
+    const i = selection.children.findIndex(c => c.id == action.child.id)
+    if(i > -1) {
+      return {
+        ...action.selection,
+        children: remove(i, 1, selection.children),
+      }
+    } else {
+      console.error(`Could not find child ${action.child.id} \
+(${action.child.name}) to remove for parent ${action.selection.name} \
+(${action.selection.id}) in action ${action.type}.`)
+      return selection
+    }
+  } else {
+    return selection
+  }
+}
+
 type SelectionReducer = (action: AppAction, selection: AppSelection) => AppSelection
 
 const selectionReducerFromAction = (action: AppAction): SelectionReducer => {
@@ -72,6 +94,8 @@ const selectionReducerFromAction = (action: AppAction): SelectionReducer => {
       return selectionChangeExclusiveReducer
     case 'selection-change-number':
       return selectionChangeNumberReducer
+    case 'selection-remove-child':
+      return selectionRemoveChildReducer
     default:
       return (_: AppAction, selection: AppSelection): AppSelection => selection
   }
@@ -121,6 +145,7 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
     case 'selection-add-child':
     case 'selection-change-exclusive':
     case 'selection-change-number':
+    case 'selection-remove-child':
       if(state.roster != null) {
         // Capture so TypeScript doesn't lose the refinement.
         const roster = state.roster

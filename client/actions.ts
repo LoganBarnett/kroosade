@@ -81,3 +81,14 @@ export const selectionFocusAction = (s: AppSelection): SelectionFocusAction => {
     type: 'selection-focus',
   }
 }
+
+export const selectionRemoveChildAction = (
+  selection: AppSelection,
+  child: AppSelection,
+): SelectionRemoveChildAction => {
+  return {
+    child,
+    selection,
+    type: 'selection-remove-child',
+  }
+}

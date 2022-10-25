@@ -7,7 +7,11 @@ import React, {
   useContext,
   useState,
 } from 'react'
-import { type AppAction, selectionAddChildrenAction } from './actions'
+import {
+  type AppAction,
+  selectionAddChildrenAction,
+  selectionRemoveChildAction,
+} from './actions'
 import { type Component as ButtonComponent } from './button'
 import {
   type Component as ExtantSelectionEditorComponent,
@@ -77,6 +81,7 @@ const addSelection = (
 export default (
   className: string,
   AddButton: ButtonComponent,
+  DeleteButton: ButtonComponent,
   Visible: VisibleComponent,
   ExtantSelectionEditor: ExtantSelectionEditorComponent,
 ): FC<Props> => {
@@ -89,16 +94,24 @@ export default (
         defaultState(option),
       ))
       return <fieldset className={className}>
-        {props.selection.children
-          .filter(isExtantSelection)
-          .map(x => {
-            return <ExtantSelectionEditor
-              key={x.id}
-              options={props.options}
-              selection={x}
-            />
-          })
-        }
+        <ol>
+          {props.selection.children
+            .filter(isExtantSelection)
+            .map(x => {
+              return <li key={x.id}>
+                <DeleteButton onClick={() => {
+                  dispatch(selectionRemoveChildAction(props.selection, x))
+                }}>
+                  remove {selectionTitle(props.options, x)}
+                </DeleteButton>
+                <ExtantSelectionEditor
+                  options={props.options}
+                  selection={x}
+                />
+              </li>
+            })
+          }
+        </ol>
         <Visible visible={!state.adding}>
           <AddButton onClick={() => setState({...state, adding: true})}>
             add {selectionTitle(props.options, props.selection)}
