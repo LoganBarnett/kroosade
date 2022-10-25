@@ -28,13 +28,15 @@ export default (className: string): FC<Props> => {
   const DeleteButton = buttonFn(buttonStyles.remove)
   const Visibility = visibilityFn('display')
   const component = (props: Props): ReactElement => {
-    const { dispatch } = useContext(Context)
+    const { state, dispatch } = useContext(Context)
     const focusFn = (s: AppSelection) => dispatch(selectionFocusAction(s))
     return <fieldset className={className}>
       <Visibility visible={props.selection.selected}>
-        <FocusButton onClick={() => focusFn(props.selection)}>
-          focus
-        </FocusButton>
+        <Visibility visible={props.selection.id != state.focus?.id}>
+          <FocusButton onClick={() => focusFn(props.selection)}>
+            focus
+          </FocusButton>
+        </Visibility>
         <DeleteButton onClick={() => {}}>
           remove {selectionTitle(props.options, props.selection)}
         </DeleteButton>
