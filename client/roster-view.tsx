@@ -17,7 +17,7 @@ import { default as repeatingExtantSelectionEditorFn } from './repeating-extant-
 import { default as selectionDetailsFn } from './selection-details'
 import { default as selectionEditorFn } from './selection-editor'
 import { default as visibleRenderFn } from './visible'
-import { selectionFocusAction } from './app-reducer'
+import { selectionFocusAction } from './actions'
 
 export type ComponentState = {
   focus: AppSelection | null,

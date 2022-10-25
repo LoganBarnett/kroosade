@@ -2,7 +2,7 @@
  */
 
 import React, { useContext, type FC, type ReactElement } from 'react'
-import { selectionChangeNumberAction } from './app-reducer'
+import { selectionChangeNumberAction } from './actions'
 import { type NumericSelection, type AppOption } from './model'
 import { Context } from './reducer-provider'
 

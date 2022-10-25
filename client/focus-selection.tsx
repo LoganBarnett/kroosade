@@ -4,7 +4,7 @@ import React, {
   type ReactNode,
   useContext,
 } from 'react'
-import { selectionFocusAction } from './app-reducer'
+import { selectionFocusAction } from './actions'
 import buttonFn from './button'
 import buttonStyles from './button.module.css'
 import { type AppSelection } from './model'

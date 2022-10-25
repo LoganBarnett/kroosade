@@ -3,8 +3,13 @@
  * or removing.
  */
 
-import React, { type FC, type ReactNode, type ReactElement, useContext } from 'react'
-import { selectionFocusAction } from './app-reducer'
+import React, {
+  type FC,
+  type ReactNode,
+  type ReactElement,
+  useContext,
+} from 'react'
+import { selectionFocusAction } from './actions'
 import buttonFn from './button'
 import buttonStyles from './button.module.css'
 import {

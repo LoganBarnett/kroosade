@@ -2,7 +2,7 @@ import React, { useContext, type FC, type ReactElement } from 'react'
 import { isOption, type ExclusiveSelection, type AppOption } from './model'
 import { optionForSelection } from './utils'
 import { Context } from './reducer-provider'
-import { selectionChangeExclusiveAction } from './app-reducer'
+import { selectionChangeExclusiveAction } from './actions'
 
 export type Props = {
   options: ReadonlyArray<AppOption>,

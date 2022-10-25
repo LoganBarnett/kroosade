@@ -7,7 +7,7 @@ import React, {
   useContext,
   useState,
 } from 'react'
-import { type AppAction, selectionAddChildrenAction } from './app-reducer'
+import { type AppAction, selectionAddChildrenAction } from './actions'
 import { type Component as ButtonComponent } from './button'
 import {
   type Component as ExtantSelectionEditorComponent,

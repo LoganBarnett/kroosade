@@ -5,11 +5,8 @@ import React, {
   useMemo,
   useReducer,
 } from 'react'
-import {
-  type AppAction,
-  type AppState,
-  reducer as appReducer,
-} from './app-reducer'
+import {type AppState, reducer as appReducer } from './app-reducer'
+import {type AppAction } from './actions'
 import { roster } from './example-roster'
 
 export const Context = createContext({
