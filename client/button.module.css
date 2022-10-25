@@ -1,12 +1,14 @@
 .add {
-  color: green;
+  background-color: var(--affirmative-button-background-color);
+  color: var(--affirmative-button-color);
 }
 
 .remove {
-  color: red;
+  background-color: var(--danger-button-background-color);
+  color: var(--danger-button-color);
 }
 
 .focus {
-  background-color: #666;
-  color: #00DD99;
+  background-color: var(--view-button-background-color);
+  color: var(--view-button-color);
 }
