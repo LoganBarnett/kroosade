@@ -1,4 +1,4 @@
-import { always, drop, head, identity, reduce } from 'ramda'
+import { always, drop, head, identity, intersection, reduce } from 'ramda'
 import { type AppOption, type AppSelection } from './model'
 import Option, { type Option as OptionType } from './option'
 
@@ -135,4 +135,21 @@ export const deepModify = <A extends {},>(
         ).map(newChild => assignModification(current, newChild))
       })
   }
+}
+
+/**
+ * Finds A's in range of x for `as`.
+ *
+ * This could possibly be made to be more generic (for more than numbers), but
+ * it suits our purposes just fine as it is currently.
+ */
+export const findInNumericRange = <A>(
+  lt: (x: number, a: A) => boolean,
+  gt: (x: number, a: A) => boolean,
+  as: ReadonlyArray<A>,
+  x: number,
+): ReadonlyArray<A> => {
+  const lts = as.filter(lt.bind(null, x))
+  const gts = as.filter(gt.bind(null, x))
+  return intersection(lts, gts)
 }

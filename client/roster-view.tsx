@@ -18,6 +18,8 @@ import { default as selectionDetailsFn } from './selection-details'
 import { default as selectionEditorFn } from './selection-editor'
 import { default as visibleRenderFn } from './visible'
 import { selectionFocusAction } from './actions'
+import { default as selectionCostFn } from './selection-cost'
+import { default as selectionCostTypeFn } from './selection-cost-type'
 
 export type ComponentState = {
   focus: AppSelection | null,
@@ -30,8 +32,13 @@ const Roster = rosterFn('roster-parent')
 const VisibleRender = visibleRenderFn('rendering')
 const AddButton = buttonFn(buttonStyles.add)
 const DeleteButton = buttonFn(buttonStyles.remove)
+const SelectionCostType = selectionCostTypeFn()
+const SelectionCost = selectionCostFn(SelectionCostType)
 const BooleanSelectionEditor = booleanSelectionEditorFn('boolean-selection')
-const ExtantSelectionEditor = extantSelectionEditorFn('extant-selection')
+const ExtantSelectionEditor = extantSelectionEditorFn(
+  SelectionCost,
+  'extant-selection',
+)
 const NumericSelectionEditor = numericSelectionEditorFn('numeric-selection')
 const ExclusiveSelectionEditor = exclusiveSelectionEditorFn('exclusive-selection')
 const RepeatingExtantSelectionEditor = repeatingExtantSelectionEditorFn(

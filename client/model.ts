@@ -1,4 +1,6 @@
+import { add } from 'ramda'
 import { v4 } from 'uuid'
+import { findInNumericRange } from './utils'
 
 /**
  * ExtantOptions represent an option whose selection is merely the presence of
@@ -79,7 +81,7 @@ export type RepeatingExtantOption = {
   name: string,
   key: string,
   kind: 'repeating-extant-option',
-  children: ReadonlyArray<AppOption>,
+  children: ReadonlyArray<Entity>,
 }
 
 export type AppOption =
@@ -152,98 +154,19 @@ export type AppSelection =
   | NumericSelection
   | RepeatingExtantSelection
 
-// New
-
-export type UnknownEntity = {
-  children: ReadonlyArray<Entity>,
-  costs: ReadonlyArray<Cost>,
-  definition: string,
-  name: string,
-  tags: ReadonlyArray<string>,
-  value: unknown,
-}
-
 export type Cost = {
-  amount: number,
-  // Typically one of 'command-points', 'points', or 'power-level'.
-  kind: string,
+  amount: CalculatedValue<number>,
+  kind: 'cost',
+  // Typically one of 'command-points', 'points', 'power-level' or 'requisition
+  // points'. This is not typed with discriminated union so we can support any
+  // kind of cost, which really just needs to be treated the same.
+  costKind: string,
 }
 
-export type CostEntity = {
-  children: ReadonlyArray<Entity>,
-  definition: 'cost',
-  name: string,
-  tags: ReadonlyArray<string>,
-  value: Cost,
-}
-
-export type Validation = {
-  code: string,
-  name: string,
-}
-
-export type ValidationEntity = {
-  children: ReadonlyArray<Entity>,
-  definition: 'validation',
-  name: string,
-  tags: ReadonlyArray<string>,
-  value: Validation
-}
-
-export type AmountEntityDefinition = {
-  children: ReadonlyArray<Entity>,
-  definition: 'amount',
-  name: 'amount',
-  tags: ReadonlyArray<string>,
-  value: number,
-}
-
-export type AmountEntity = {
-  children: ReadonlyArray<Entity>,
-  definition: 'amount',
-  name: 'amount',
-  tags: ReadonlyArray<string>,
-  value: number,
-}
-
-export type ValidationError = {
-  kind: string,
-  name: string,
-  message: string,
-  targets: ReadonlyArray<string>,
-}
-
-export type FieldEntity = {
-  children: ReadonlyArray<Entity>,
-  definition: 'field',
-  name: string,
-  tags: ReadonlyArray<string>,
-  value: {
-    key: string,
-    value: unknown,
-  },
-}
-
-export type ObjectEntity = {
-  children: ReadonlyArray<Entity>,
-  definition: 'object',
-  name: string,
-  tags: ReadonlyArray<string>,
-  value: { [key: string]: FieldType },
-}
-
-export type FieldType =
-  | 'entity'
-  | 'string'
-  | 'number'
 
 export type Entity =
-  // | CostEntity
   | AppOption
-  // | FieldEntity
-  // | ObjectEntity
-  // | UnknownEntity
-  // | ValidationEntity
+  | Cost
 
 export const isExtantSelection = (x: AppSelection): x is ExtantSelection => {
   return x.kind == 'extant-selection'
@@ -251,18 +174,26 @@ export const isExtantSelection = (x: AppSelection): x is ExtantSelection => {
 
 export const isOption = (x: Entity): x is AppOption  => {
   switch(x.kind) {
-      case 'extant-option':
-      case 'repeating-extant-option':
-      case 'boolean-option':
-      case 'numeric-option':
+    case 'extant-option':
+    case 'exclusive-option':
+    case 'repeating-extant-option':
+    case 'boolean-option':
+    case 'numeric-option':
       return true
-      default:
+    default:
       return false
   }
 }
 
+export const isCost = (x: Entity): x is Cost => {
+  return x.kind == 'cost'
+}
+
 export const selectionChildren = (x: AppOption): ReadonlyArray<AppSelection> => {
-  return x.children.filter(y => y.autoAdd).map(optionToSelection)
+  return x.children
+    .filter(isOption)
+    .filter(y => y.autoAdd)
+    .map(optionToSelection)
 }
 
 // TODO: These need to recursively add children, but conditionally.
@@ -317,5 +248,108 @@ export const optionToSelection = (x: AppOption): AppSelection => {
         optionKey: x.key,
       }
       return reo
+  }
+}
+
+export const selectionToOption = (
+  options: ReadonlyArray<AppOption>,
+  x: AppSelection,
+): AppOption | null | undefined => {
+  return options.find(o => o.key == x.optionKey)
+}
+
+type CalculatedValue<A> = (
+  options: ReadonlyArray<AppOption>,
+  rootSelection: AppSelection,
+  selection: AppSelection
+) => A
+
+export const cost = (costKind: string, amount: CalculatedValue<number>): Cost => {
+  return {
+    amount,
+    costKind,
+    kind: 'cost',
+  }
+}
+
+// 40k specific.
+
+type ModelCountCost = {
+  amount: number,
+  min?: number,
+  max?: number,
+}
+
+export const modelCountPoints = (
+  costPerModel: number,
+  options: ReadonlyArray<AppOption>,
+  _rootSelection: AppSelection,
+  selection: AppSelection,
+): number => {
+  const option = selectionToOption(options, selection)
+  if(option == null) {
+    // We should never get here.
+    // TODO: Handle error.
+    return 0
+  } else if(selection.kind == 'numeric-selection') {
+    return selection.value * costPerModel
+  } else {
+    // We should also never get here.
+    // TODO: Handle error.
+    return 0
+  }
+}
+
+export const modelCountPowerLevel = (
+  costs: ReadonlyArray<ModelCountCost>,
+  options: ReadonlyArray<AppOption>,
+  _rootSelection: AppSelection,
+  selection: AppSelection,
+): number => {
+  const option = selectionToOption(options, selection)
+  if(option == null) {
+    // We should never get here.
+    // TODO: Handle error.
+    return 0
+  } else if(selection.kind == 'numeric-selection') {
+    const cost = findInNumericRange(
+      (x: number, c: ModelCountCost) => c.min == null || c.min > x,
+      (x: number, c: ModelCountCost) => c.max == null || c.max < x,
+      costs,
+      selection.value,
+    )[0]
+    if(cost == null) {
+      // We should never get here.
+      // TODO: Handle error.
+      return 0
+    } else {
+      return cost.amount
+    }
+  } else {
+    // We should also never get here.
+    // TODO: Handle error.
+    return 0
+  }
+}
+
+export const selectionCost = (
+  costKind: string,
+  options: ReadonlyArray<AppOption>,
+  root: AppSelection,
+  selection: AppSelection,
+): number => {
+  const option = selectionToOption(options, selection)
+  if(option == null) {
+    // TODO handle this error, but we should never get here.
+    return 0
+  } else {
+    return option.children
+      .filter(isCost)
+      .filter(c => c.costKind == costKind)
+      .map(c => c.amount(options, root, selection))
+      .reduce(add, 0)
+      +
+      selection.children.map(selectionCost.bind(null, costKind, options, root))
+        .reduce(add, 0)
   }
 }

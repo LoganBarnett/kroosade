@@ -18,6 +18,7 @@ import {
   type ExtantSelection,
 } from './model'
 import { Context } from './reducer-provider'
+import { type Component as SelectionCostComponent } from './selection-cost'
 import { selectionTitle } from './utils'
 import visibilityFn from './visible'
 
@@ -28,7 +29,10 @@ export type Props = {
 
 export type Component = FC<Props>
 
-export default (className: string): FC<Props> => {
+export default (
+  SelectionCost: SelectionCostComponent,
+  className: string,
+): FC<Props> => {
   const FocusButton = buttonFn(buttonStyles.focus)
   const Visibility = visibilityFn('display')
   const component = (props: Props): ReactElement => {
@@ -37,6 +41,11 @@ export default (className: string): FC<Props> => {
     return <fieldset className={className}>
       <Visibility visible={props.selection.selected}>
         {selectionTitle(props.options, props.selection)}
+        <SelectionCost
+          options={props.options}
+          root={props.selection}
+          selection={props.selection}
+        />
         <Visibility visible={props.selection.id != state.focus?.id}>
           <FocusButton onClick={() => focusFn(props.selection)}>
             focus
