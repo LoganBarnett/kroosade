@@ -41,6 +41,19 @@ export const selectionChangeExclusiveReducer = (
     return {
       ...action.selection,
       selected: action.selected,
+      children: selection.children.map(c => {
+        if(c.kind == 'extant-selection') {
+          return {
+            ...c,
+            // TODO: Selected should really be the ID, but is optionKey. This
+            // creates its own complications. Recursive edits would need to
+            // adjust to the new ID like Focus does.
+            selected: action.selected == c.optionKey,
+          }
+        } else {
+          return c
+        }
+      }),
     }
   } else {
     return selection

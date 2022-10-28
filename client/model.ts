@@ -157,7 +157,7 @@ export type AppSelection =
 export type Cost = {
   amount: CalculatedValue<number>,
   kind: 'cost',
-  // Typically one of 'command-points', 'points', 'power-level' or 'requisition
+  // Typically one of 'command-points', 'points', 'power-rating' or 'requisition
   // points'. This is not typed with discriminated union so we can support any
   // kind of cost, which really just needs to be treated the same.
   costKind: string,
@@ -192,11 +192,9 @@ export const isCost = (x: Entity): x is Cost => {
 export const selectionChildren = (x: AppOption): ReadonlyArray<AppSelection> => {
   return x.children
     .filter(isOption)
-    .filter(y => y.autoAdd)
     .map(optionToSelection)
 }
 
-// TODO: These need to recursively add children, but conditionally.
 export const optionToSelection = (x: AppOption): AppSelection => {
   switch(x.kind) {
     case 'boolean-option':
@@ -216,7 +214,7 @@ export const optionToSelection = (x: AppOption): AppSelection => {
         kind: 'extant-selection',
         name: x.name,
         optionKey: x.key,
-        selected: true,
+        selected: x.autoAdd,
       }
       return exts
     case 'exclusive-option':
@@ -313,8 +311,8 @@ export const modelCountPowerLevel = (
     return 0
   } else if(selection.kind == 'numeric-selection') {
     const cost = findInNumericRange(
-      (x: number, c: ModelCountCost) => c.min == null || c.min > x,
-      (x: number, c: ModelCountCost) => c.max == null || c.max < x,
+      (x: number, c: ModelCountCost) => c.min == null || c.min <= x,
+      (x: number, c: ModelCountCost) => c.max == null || c.max >= x,
       costs,
       selection.value,
     )[0]
@@ -343,13 +341,19 @@ export const selectionCost = (
     // TODO handle this error, but we should never get here.
     return 0
   } else {
-    return option.children
-      .filter(isCost)
-      .filter(c => c.costKind == costKind)
-      .map(c => c.amount(options, root, selection))
-      .reduce(add, 0)
-      +
-      selection.children.map(selectionCost.bind(null, costKind, options, root))
+    if(selection.kind == 'extant-selection' && !selection.selected) {
+      return 0
+    } else {
+      return option.children
+        .filter(isCost)
+        .filter(c => c.costKind == costKind)
+        .map(c => c.amount(options, root, selection))
         .reduce(add, 0)
+        +
+        selection.children.map(
+          selectionCost.bind(null, costKind, options, root),
+        )
+          .reduce(add, 0)
+    }
   }
 }
