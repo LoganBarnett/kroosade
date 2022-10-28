@@ -38,8 +38,8 @@ export default (
   const component = (props: Props): ReactElement => {
     const { state, dispatch } = useContext(Context)
     const focusFn = (s: AppSelection) => dispatch(selectionFocusAction(s))
-    return <fieldset className={className}>
-      <Visibility visible={props.selection.selected}>
+    return <Visibility visible={props.selection.selected}>
+      <fieldset className={className}>
         {selectionTitle(props.options, props.selection)}
         <SelectionCost
           options={props.options}
@@ -51,8 +51,8 @@ export default (
             focus
           </FocusButton>
         </Visibility>
-      </Visibility>
-    </fieldset>
+      </fieldset>
+    </Visibility>
   }
   component.displayName = 'ExtantSelectionEditor'
   return component

@@ -26,7 +26,12 @@ export const selectionAddChildReducer = (
     return Object.assign(
       {},
       selection,
-      { children: append(action.newChild, selection.children) },
+      { children: append(
+        action.newChild.kind == 'extant-selection'
+          ? { ...action.newChild, selected: true }
+          : action.newChild,
+        selection.children,
+      ) },
     )
   } else {
     return selection

@@ -17,15 +17,20 @@ export default (
     return <article className={className}>
       {props.selection != null ?
         <>
-          {selectionTitle(props.options, props.selection)}
+          { /* selectionTitle(props.options, props.selection) */}
           <SelectionEditor options={props.options} selection={props.selection} />
-          <ul>
-            {props.selection.children.map(c => {
-              return <li key={c.id}>
-                <Component options={props.options} selection={c} />
-              </li>
-            })}
-          </ul>
+          { props.selection.children.filter(c => {
+            return c.kind != 'extant-selection' || c.selected
+          }).length > 0
+            ? <ul>
+                {props.selection.children.map(c => {
+                  return <li key={c.id}>
+                    <Component options={props.options} selection={c} />
+                  </li>
+                })}
+              </ul>
+            : <></>
+            }
         </>
       : ''
       }
