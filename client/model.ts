@@ -298,7 +298,15 @@ export const modelCountPoints = (
   }
 }
 
-export const modelCountPowerLevel = (
+/**
+ * Compute the power rating of a given unit.
+ *
+ * 40k-specific. Power Rating happens in groupings, and isn't always linear.
+ * Most units have only two sizes, but some have 3 or 4 sizes, as well as
+ * non-linear progression of power rating (3 and then 7 instead of 3 and then
+ * 6).
+ */
+export const modelCountPowerRating = (
   costs: ReadonlyArray<ModelCountCost>,
   options: ReadonlyArray<AppOption>,
   _rootSelection: AppSelection,
