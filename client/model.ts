@@ -262,6 +262,9 @@ type CalculatedValue<A> = (
   selection: AppSelection
 ) => A
 
+/**
+ * Helper for creating a Cost Definition.
+ */
 export const cost = (costKind: string, amount: CalculatedValue<number>): Cost => {
   return {
     amount,
@@ -278,6 +281,9 @@ type ModelCountCost = {
   max?: number,
 }
 
+/**
+ * Compute cost by multiplying model count by cost per model.
+ */
 export const modelCountPoints = (
   costPerModel: number,
   options: ReadonlyArray<AppOption>,
@@ -338,6 +344,9 @@ export const modelCountPowerRating = (
   }
 }
 
+/**
+ * Compute the cost of a particular kind of selection fo a given AppSelection.
+ */
 export const selectionCost = (
   costKind: string,
   options: ReadonlyArray<AppOption>,
