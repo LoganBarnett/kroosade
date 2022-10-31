@@ -163,10 +163,74 @@ export type Cost = {
   costKind: string,
 }
 
+export type ValidationMessage = {
+  message: string,
+  variables: ReadonlyArray<{}>
+}
 
+/**
+ * ValidationResults are calculated from a Validation.
+ */
+export type ValidationIssue = {
+  /**
+   * A unique code that identifies this issue.
+   */
+  issueCode: string,
+  /**
+   * Messages are just strings, but they will be formatted to show the targets
+   * dynamically. Documentation to come on what that looks like.
+   *
+   * I haven't really thought about i18n here just yet. We could make these
+   * keys which in turn refer to translations. For now, let's just have them be
+   * English messages.
+   *
+   * Messages should observe proper punctuation and capitalization.
+   */
+  messages: ReadonlyArray<ValidationMessage>,
+  /**
+   * This result has targets, which represent zero or more selections involved
+   * in the validation issue.  Typically all validations will at least have one
+   * target: The AppSelection from which the validation issue originated. This
+   * allows aggregate UI for validations to display the validation issue
+   * anywhere, yet still be able to point back to the source of the validation
+   * issue.
+   */
+  targets: ReadonlyArray<AppSelection>,
+  /**
+   * The validation type allows for indicating a level of severity for the
+   * validation issue. These can be virtually anything, but expected common
+   * example will be validation issues that indicate legality at tournaments.
+   * Another example is a deprecation, or a warning that a particular
+   * configuration tends to be ruled upon in varied ways - buyer beware.
+   *
+   * A validation issue type should refrain from verbiage like "error" or
+   * "illegal" unless there is a software error of some kind, or legality is
+   * actually involved. For issues that are not allowed by a game system, use
+   * "violation".
+   */
+  validationType: string,
+}
+
+export type Validation = {
+  /**
+   * Generate ValidationIssues from the corresponding selection. An empty list
+   * of ValidationIssues indicates that there are no validation issues with this
+   * validation - we're operating within the bounds of the validation.
+   */
+  function: (
+    options: ReadonlyArray<AppOption>, root: AppSelection,
+    current: AppSelection
+  ) => ReadonlyArray<ValidationIssue>,
+  kind: 'validation',
+  name: string,
+}
+
+// TODO: Consider renaming this to Definition, which confers a more accurate
+// name of what this represents.
 export type Entity =
   | AppOption
   | Cost
+  | Validation
 
 export const isExtantSelection = (x: AppSelection): x is ExtantSelection => {
   return x.kind == 'extant-selection'
@@ -184,6 +248,11 @@ export const isOption = (x: Entity): x is AppOption  => {
       return false
   }
 }
+
+export const isValidation = (x: Entity): x is Validation  => {
+  return x.kind == 'validation'
+}
+
 
 export const isCost = (x: Entity): x is Cost => {
   return x.kind == 'cost'
@@ -373,4 +442,83 @@ export const selectionCost = (
           .reduce(add, 0)
     }
   }
+}
+
+/**
+ * Validate model count.
+ *
+ * This works with a minimum and maximum.
+ *
+ * This could be refactored a bit to have a simple min/max validation, and this
+ * one just specializes that function.
+ */
+export const modelCountValidation = (
+  minSize: number,
+  maxSize: number,
+  options: ReadonlyArray<AppOption>,
+  _root: AppSelection,
+  current: AppSelection,
+): ReadonlyArray<ValidationIssue> => {
+  const option = selectionToOption(options, current)
+  if(option == null) {
+    // TODO: This should be an application error.
+      return []
+  } else {
+    if(current.kind == 'numeric-selection') {
+      return (current.value < minSize
+        ? [{
+          issueCode: 'min-model-size',
+          targets: [current],
+          messages: [
+            {
+              message: 'The model count %n of %x is lower than the required of \
+%n.',
+              variables: [current.value, current, minSize],
+            },
+          ],
+          validationType: 'violation',
+        }]
+        : []
+        ).concat(
+          current.value > maxSize
+          ? [{
+          issueCode: 'max-model-size',
+          targets: [current],
+          messages: [
+            {
+              message: 'The model count %n of %x is higher than the required \
+of %n.',
+              variables: [current.value, current, minSize],
+            },
+          ],
+          validationType: 'violation',
+          }]
+          : []
+        )
+    } else {
+      return []
+    }
+  }
+}
+
+/**
+ * Format a string, printf style. Very limited syntax support is implemented.
+ *
+ * JavaScript doesn't have a printf or equivalent, even though console.log
+ * supports the syntax.
+ */
+export const format = (options: ReadonlyArray<AppOption>, m: string, vars: ReadonlyArray<{}>): string => {
+  return vars.reduce<string>((acc: string, v: {}) => {
+    return acc.replace(/([^%])%([snx])/, (_m: string, pre: string, type: string) => {
+      // Add back in the first match. The not-match for % (to rule out %%)
+      // gobbles up that character as part of the overall match. So we assigned
+      // it to a capture group, and have to add it back in here.
+      return pre + (type == 'x'
+        // TODO: Stop as-casting.
+        ? selectionToOption(options, v as AppSelection)?.name
+          || `option not found for ${JSON.stringify(v)}`
+        : v.toString()
+      )
+    })
+  }, m)
 }

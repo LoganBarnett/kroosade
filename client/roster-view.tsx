@@ -20,6 +20,8 @@ import { default as visibleRenderFn } from './visible'
 import { selectionFocusAction } from './actions'
 import { default as selectionCostFn } from './selection-cost'
 import { default as selectionCostTypeFn } from './selection-cost-type'
+import { default as validationIssueFn } from './validation-issue'
+import { default as validationIssuesFn } from './validation-issues'
 
 export type ComponentState = {
   focus: AppSelection | null,
@@ -32,6 +34,8 @@ const Roster = rosterFn('roster-parent')
 const VisibleRender = visibleRenderFn('rendering')
 const AddButton = buttonFn(buttonStyles.add)
 const DeleteButton = buttonFn(buttonStyles.remove)
+const ValidationIssue = validationIssueFn()
+const ValidationIssues = validationIssuesFn(ValidationIssue)
 const SelectionCostType = selectionCostTypeFn()
 const SelectionCost = selectionCostFn(SelectionCostType)
 const BooleanSelectionEditor = booleanSelectionEditorFn('boolean-selection')
@@ -57,6 +61,7 @@ const SelectionEditor = selectionEditorFn(
 )
 const SelectionDetails = selectionDetailsFn(
   SelectionEditor,
+  ValidationIssues,
   'selection-details',
 )
 
