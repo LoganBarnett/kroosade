@@ -308,7 +308,8 @@ export const optionToSelection = (x: AppOption): AppSelection => {
       return ns
     case 'repeating-extant-option':
       const reo: RepeatingExtantSelection = {
-        children: selectionChildren(x),
+        // TODO: Consider identifying which ones should be automatically added.
+        children: [],
         id: v4(),
         kind: 'repeating-extant-selection',
         name: x.name,
