@@ -160,6 +160,11 @@ export const logReducer = (
 const appReducer = (state: AppState, action: AppAction): AppState => {
   console.log('action', action)
   switch(action.type) {
+    case 'selection-create-roster':
+      return {
+        focus: action.roster,
+        roster: action.roster,
+      }
     case 'selection-add-child':
     case 'selection-change-exclusive':
     case 'selection-change-number':

@@ -29,10 +29,16 @@ export type SelectionRemoveChildAction = {
   type: 'selection-remove-child',
 }
 
+export type SelectionCreateRosterAction  = {
+  roster: AppSelection,
+  type: 'selection-create-roster',
+}
+
 export type AppAction =
   | SelectionAddChildAction
   | SelectionChangeExclusiveAction
   | SelectionChangeNumberAction
+  | SelectionCreateRosterAction
   | SelectionFocusAction
   | SelectionRemoveChildAction
 
@@ -72,6 +78,15 @@ export const selectionChangeNumberAction = (
     selection,
     type: 'selection-change-number',
     value,
+  }
+}
+
+export const selectionCreateRosterAction = (
+  roster: AppSelection,
+): SelectionCreateRosterAction => {
+  return {
+    roster,
+    type: 'selection-create-roster',
   }
 }
 

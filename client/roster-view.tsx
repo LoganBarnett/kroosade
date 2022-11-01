@@ -3,10 +3,11 @@ import React, {
   type ReactElement,
   useContext,
 } from 'react'
+import { v4 as uuid } from 'uuid'
 import { Context } from './reducer-provider'
 import rosterFn from './roster'
 import { options } from './data'
-import { type AppSelection } from './model'
+import { optionToSelection, type AppSelection } from './model'
 import { default as buttonFn } from './button'
 import buttonStyles from './button.module.css'
 import { default as booleanSelectionEditorFn } from './boolean-selection-editor'
@@ -17,7 +18,7 @@ import { default as repeatingExtantSelectionEditorFn } from './repeating-extant-
 import { default as selectionDetailsFn } from './selection-details'
 import { default as selectionEditorFn } from './selection-editor'
 import { default as visibleRenderFn } from './visible'
-import { selectionFocusAction } from './actions'
+import { selectionCreateRosterAction, selectionFocusAction } from './actions'
 import { default as selectionCostFn } from './selection-cost'
 import { default as selectionCostTypeFn } from './selection-cost-type'
 import { default as validationIssueFn } from './validation-issue'
@@ -68,6 +69,16 @@ const SelectionDetails = selectionDetailsFn(
 export default (): FC<Props> => {
   const component = (props: Props): ReactElement => {
     const { state, dispatch } = useContext(Context)
+    const createRoster = () => {
+      const option = options.find(o => o.key == 'roster')
+      if(option == null) {
+        console.error('Option missing: roster')
+      } else {
+        // TODO: Create the selection from the option. Otherwise we aren't
+        // creating the correct selection type that follows the option.
+        dispatch(selectionCreateRosterAction(optionToSelection(option)))
+      }
+    }
     // Use focusFn instead of focus, because focus is global.
     const focusFn = (s: AppSelection) => dispatch(selectionFocusAction(s))
     return <>
@@ -87,6 +98,7 @@ export default (): FC<Props> => {
             />
             : <>No roster loaded.</>
           }
+        <AddButton onClick={createRoster}> create roster </AddButton>
         </section>
         <section>
           <h2>Selection</h2>
