@@ -154,6 +154,9 @@ export type AppSelection =
   | NumericSelection
   | RepeatingExtantSelection
 
+/**
+ * A cost in a particular kind of units.
+ */
 export type Cost = {
   amount: CalculatedValue<number>,
   kind: 'cost',
@@ -258,12 +261,18 @@ export const isCost = (x: Entity): x is Cost => {
   return x.kind == 'cost'
 }
 
+/**
+ * Generate AppSelection children from an AppOption.
+ */
 export const selectionChildren = (x: AppOption): ReadonlyArray<AppSelection> => {
   return x.children
     .filter(isOption)
     .map(optionToSelection)
 }
 
+/**
+ * Generate an AppSelection from an AppOption.
+ */
 export const optionToSelection = (x: AppOption): AppSelection => {
   switch(x.kind) {
     case 'boolean-option':
@@ -319,6 +328,9 @@ export const optionToSelection = (x: AppOption): AppSelection => {
   }
 }
 
+/**
+ * Find the AppOption from this AppSelection.
+ */
 export const selectionToOption = (
   options: ReadonlyArray<AppOption>,
   x: AppSelection,
@@ -326,6 +338,9 @@ export const selectionToOption = (
   return options.find(o => o.key == x.optionKey)
 }
 
+/**
+ * Virtually any calculatable value should be calculated from such a function.
+ */
 type CalculatedValue<A> = (
   options: ReadonlyArray<AppOption>,
   rootSelection: AppSelection,
