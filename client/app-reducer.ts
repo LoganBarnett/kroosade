@@ -102,6 +102,20 @@ export const selectionRemoveChildReducer = (
   }
 }
 
+export const selectionChangeNameReducer = (
+  action: AppAction,
+  selection: AppSelection,
+): AppSelection => {
+  if(action.type == 'selection-change-name') {
+    return {
+      ...action.selection,
+      name: action.name,
+    }
+  } else {
+    return selection
+  }
+}
+
 type SelectionReducer = (action: AppAction, selection: AppSelection) => AppSelection
 
 const selectionReducerFromAction = (action: AppAction): SelectionReducer => {
@@ -110,6 +124,8 @@ const selectionReducerFromAction = (action: AppAction): SelectionReducer => {
       return selectionAddChildReducer
     case 'selection-change-exclusive':
       return selectionChangeExclusiveReducer
+    case 'selection-change-name':
+      return selectionChangeNameReducer
     case 'selection-change-number':
       return selectionChangeNumberReducer
     case 'selection-remove-child':
@@ -167,6 +183,7 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       }
     case 'selection-add-child':
     case 'selection-change-exclusive':
+    case 'selection-change-name':
     case 'selection-change-number':
     case 'selection-remove-child':
       if(state.roster != null) {
