@@ -106,6 +106,7 @@ export default (
                 </DeleteButton>
                 <ExtantSelectionEditor
                   options={props.options}
+                  parent={props.selection}
                   selection={x}
                 />
               </li>

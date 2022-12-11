@@ -4,7 +4,6 @@ import { noneOption } from './data-generic'
 import {
   type ExclusiveOption,
   type ExtantOption,
-  type FixedOption,
   type NumericOption,
   type AppOption,
   type RepeatingExtantOption,

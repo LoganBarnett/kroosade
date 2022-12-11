@@ -24,8 +24,9 @@ export default (className: string): FC<Props> => {
       } else {
         e.preventDefault()
         console.error(`Error: Could not find selected option \
-"${e.currentTarget.value}". Aborting selection. Review data for inconsistent \
-key names for "${props.selection.optionKey}".`)
+"${e.currentTarget.value}" as a child of "${props.selection.optionKey}". \
+Aborting selection. Review data for inconsistent  key names for \
+"${props.selection.optionKey}".`)
       }
     }
     const option = optionForSelection(props.options, props.selection)

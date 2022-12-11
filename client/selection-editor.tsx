@@ -12,9 +12,6 @@ import {
   type Component as ExtantSelectionEditorComponent,
 } from './extant-selection-editor'
 import {
-  type Component as FixedSelectionEditorComponent,
-} from './fixed-selection-editor'
-import {
   type Component as NumericSelectionEditorComponent,
 } from './numeric-selection-editor'
 import {
@@ -24,6 +21,7 @@ import React, { type FC, type ReactNode, type ReactElement } from 'react'
 
 export type Props = {
   options: ReadonlyArray<AppOption>,
+  parent: AppSelection | undefined | null,
   selection: AppSelection,
 }
 
@@ -33,12 +31,12 @@ export default (
   BooleanSelectionEditor: BooleanSelectionEditorComponent,
   ExclusiveSelectionEditor: ExclusiveSelectionEditorComponent,
   ExtantSelectionEditor: ExtantSelectionEditorComponent,
-  FixedSelectionEditor: FixedSelectionEditorComponent,
   NumericSelectionEditor: NumericSelectionEditorComponent,
   RepeatingExtantSelectionEditor: RepeatingExtantSelectionEditorComponent,
 ): FC<Props> => {
   const selectionEditor = (
     options: ReadonlyArray<AppOption>,
+    parent: AppSelection | null | undefined,
     x: AppSelection,
   ): ReactElement => {
     // TypeScript derping. Inspired by:
@@ -54,9 +52,16 @@ export default (
       case 'exclusive-selection':
         return <ExclusiveSelectionEditor options={options} selection={x} />
       case 'extant-selection':
-        return <ExtantSelectionEditor options={options} selection={x} />
-        case 'fixed-selection':
-        return <FixedSelectionEditor options={options} selection={x} />
+        // This is the only one using parent right now. I could refactor the
+        // others. I can't return the component itself because the AppSelection
+        // is too specific in each sub component. So for now, just defer adding
+        // parent to the rest of them, since making them more uniform doesn't
+        // really change anything.
+        return <ExtantSelectionEditor
+          options={options}
+          parent={parent}
+          selection={x}
+        />
       case 'numeric-selection':
         return <NumericSelectionEditor options={options} selection={x} />
       case 'repeating-extant-selection':
@@ -71,7 +76,7 @@ export default (
   }
 
   const component = (props: Props): ReactElement => {
-    return selectionEditor(props.options, props.selection)
+    return selectionEditor(props.options, props.parent, props.selection)
   }
   component.displayName = 'SelectionEditor'
   return component

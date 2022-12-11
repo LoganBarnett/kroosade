@@ -153,3 +153,21 @@ export const findInNumericRange = <A>(
   const gts = as.filter(gt.bind(null, x))
   return intersection(lts, gts)
 }
+
+export const isRemovableSelection = (
+  os: ReadonlyArray<AppOption>,
+  s: AppSelection,
+): boolean => {
+  const option = os.find(o => o.key == s.optionKey)
+  if(option == null) {
+    console.error(`Could not find option "${s.optionKey}" while determining \
+removability of the selection. Assuming not removable.`)
+    return false
+  } else if(option.kind == 'extant-option') {
+    return option.removable
+  } else {
+    console.error(`Option "${s.optionKey}" is not an extant-option, found \
+while determining removability of the selection. Assuming not removable.`)
+    return false
+  }
+}

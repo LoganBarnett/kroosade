@@ -13,7 +13,6 @@ import buttonStyles from './button.module.css'
 import { default as booleanSelectionEditorFn } from './boolean-selection-editor'
 import { default as exclusiveSelectionEditorFn } from './exclusive-selection-editor'
 import { default as extantSelectionEditorFn } from './extant-selection-editor'
-import { default as fixedSelectionEditorFn } from './fixed-selection-editor'
 import { default as numericSelectionEditorFn } from './numeric-selection-editor'
 import { default as repeatingExtantSelectionEditorFn } from './repeating-extant-selection-editor'
 import { default as selectionDetailsFn } from './selection-details'
@@ -45,10 +44,6 @@ const ExtantSelectionEditor = extantSelectionEditorFn(
   SelectionCost,
   'extant-selection',
 )
-const FixedSelectionEditor = fixedSelectionEditorFn(
-  SelectionCost,
-  'fixed-selection',
-)
 const NumericSelectionEditor = numericSelectionEditorFn('numeric-selection')
 const ExclusiveSelectionEditor = exclusiveSelectionEditorFn('exclusive-selection')
 const RepeatingExtantSelectionEditor = repeatingExtantSelectionEditorFn(
@@ -62,7 +57,6 @@ const SelectionEditor = selectionEditorFn(
   BooleanSelectionEditor,
   ExclusiveSelectionEditor,
   ExtantSelectionEditor,
-  FixedSelectionEditor,
   NumericSelectionEditor,
   RepeatingExtantSelectionEditor,
 )
@@ -109,7 +103,11 @@ export default (): FC<Props> => {
         </section>
         <section>
           <h2>Selection</h2>
-          <SelectionDetails options={options} selection={state.focus} />
+          <SelectionDetails
+            options={options}
+            parent={null}
+            selection={state.focus}
+          />
         </section>
         <section>
           <h2>Info</h2>

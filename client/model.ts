@@ -2,19 +2,24 @@ import { add } from 'ramda'
 import { v4 } from 'uuid'
 import { findInNumericRange } from './utils'
 
-/**
- * ExtantOptions represent an option whose selection is merely the presence of
- * the selection, or the lack of presence of the selection.
- */
-export type ExtantOption = {
+export type BaseOption = {
+  autoAdd: boolean,
   name: string,
   key: string,
-  kind: 'extant-option',
   // Validations, costs, and sub-options are all handed here as children.
   // Separating them into separate fields doesn't carry big distinctions, and
   // any additional data types would necessitate adding more fields onto
   // AppOption types.
   children: ReadonlyArray<Entity>,
+}
+
+/**
+ * ExtantOptions represent an option whose selection is merely the presence of
+ * the selection, or the lack of presence of the selection.
+ */
+export type ExtantOption = BaseOption & {
+  kind: 'extant-option',
+  removable: boolean,
 }
 
 /**
@@ -24,41 +29,20 @@ export type ExtantOption = {
  *
  * For a flat selection, use ExclusiveOption with ExtantOption children.
  */
-export type ExclusiveOption = {
+export type ExclusiveOption = BaseOption & {
   default: string,
-  name: string,
-  key: string,
   kind: 'exclusive-option',
-  // Validations, costs, and sub-options are all handed here as children.
-  // Separating them into separate fields doesn't carry big distinctions, and
-  // any additional data types would necessitate adding more fields onto
-  // AppOption types.
-  children: ReadonlyArray<Entity>,
-}
-
-/**
- * Fixed options indicate options that should always be present and cannot be
- * added/removed.
- */
-export type FixedOption = {
-  children: ReadonlyArray<Entity>,
-  key: string,
-  kind: 'fixed-option',
-  name: string,
 }
 
 /**
  * NumericOptions reflect a single number. This number can be governed by
  * minimums and maximums.
  */
-export type NumericOption = {
-  children: ReadonlyArray<Entity>,
+export type NumericOption = BaseOption & {
   default: number,
-  key: string,
   kind: 'numeric-option',
   maximum: number,
   minimum: number,
-  name: string,
 }
 
 /**
@@ -66,12 +50,9 @@ export type NumericOption = {
  * values. BooleanOptions differ from ExtantSelections in that they are
  * presented regardless of selection state.
  */
-export type BooleanOption = {
-  children: ReadonlyArray<Entity>,
+export type BooleanOption = BaseOption & {
   default: boolean,
-  key: string,
   kind: 'boolean-option',
-  name: string,
   value: boolean,
 }
 
@@ -83,18 +64,14 @@ export type BooleanOption = {
  * This is useful when selections can be made more than once, but also when each
  * selection could have its own customizations.
  */
-export type RepeatingExtantOption = {
-  children: ReadonlyArray<Entity>,
-  key: string,
+export type RepeatingExtantOption = BaseOption & {
   kind: 'repeating-extant-option',
-  name: string | null,
 }
 
 export type AppOption =
   | BooleanOption
   | ExclusiveOption
   | ExtantOption
-  | FixedOption
   | NumericOption
   | RepeatingExtantOption
 
@@ -120,14 +97,6 @@ export type ExtantSelection = {
   children: ReadonlyArray<AppSelection>,
   id: string,
   kind: 'extant-selection',
-  name: string | null,
-  optionKey: string,
-}
-
-export type FixedSelection = {
-  children: ReadonlyArray<AppSelection>,
-  id: string,
-  kind: 'fixed-selection',
   name: string | null,
   optionKey: string,
 }
@@ -165,7 +134,6 @@ export type AppSelection =
   | BooleanSelection
   | ExclusiveSelection
   | ExtantSelection
-  | FixedSelection
   | NumericSelection
   | RepeatingExtantSelection
 
@@ -284,7 +252,7 @@ export const isAutomaticallyAdded = (
   option: AppOption,
   child: AppOption,
 ): boolean => {
-  return child.kind == 'fixed-option'
+  return child.autoAdd
     || option.kind == 'exclusive-option' && option.default == child.key
 }
 
@@ -335,17 +303,6 @@ export const optionToSelection = (x: AppOption): AppSelection => {
           name: x.name,
           optionKey: x.key,
           selected: x.default,
-        }
-        return selection
-      }
-    case 'fixed-option':
-      {
-        const selection: FixedSelection = {
-          children: selectionChildren(x),
-          id: v4(),
-          kind: 'fixed-selection',
-          name: x.name,
-          optionKey: x.key,
         }
         return selection
       }

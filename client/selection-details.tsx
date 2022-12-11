@@ -5,6 +5,7 @@ import { type Component as ValidationIssuesComponent } from './validation-issues
 
 export type Props = {
   options: ReadonlyArray<AppOption>,
+  parent: AppSelection | undefined | null,
   selection: AppSelection | undefined | null,
 }
 
@@ -21,7 +22,11 @@ export default (
     }) || []
     return props.selection != null
       ? <article className={className}>
-        <SelectionEditor options={props.options} selection={props.selection} />
+        <SelectionEditor
+          options={props.options}
+          parent={props.parent}
+          selection={props.selection}
+        />
         <ValidationIssues
           options={props.options}
           root={props.selection}
@@ -31,7 +36,11 @@ export default (
             ? <ul className="selection-details-children">
                 {children.map(c => {
                   return <li key={c.id}>
-                    <Component options={props.options} selection={c} />
+                    <Component
+                      options={props.options}
+                      selection={c}
+                      parent={props.selection}
+                    />
                   </li>
                 })}
               </ul>
