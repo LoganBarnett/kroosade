@@ -15,10 +15,18 @@ export default (className: string): FC<Props> => {
   const component = (props: Props): ReactElement => {
     const { dispatch } = useContext(Context)
     const onChange = (e: React.FormEvent<HTMLInputElement>) => {
-      dispatch(selectionChangeExclusiveAction(
-        props.selection,
-        e.currentTarget.value,
-      ))
+      const selected = props.options.find(o => o.key == e.currentTarget.value)
+      if(selected != null) {
+        dispatch(selectionChangeExclusiveAction(
+          props.selection,
+          selected,
+        ))
+      } else {
+        e.preventDefault()
+        console.error(`Error: Could not find selected option \
+"${e.currentTarget.value}". Aborting selection. Review data for inconsistent \
+key names for "${props.selection.optionKey}".`)
+      }
     }
     const option = optionForSelection(props.options, props.selection)
     if(option != null) {

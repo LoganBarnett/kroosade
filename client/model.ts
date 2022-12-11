@@ -7,7 +7,6 @@ import { findInNumericRange } from './utils'
  * the selection, or the lack of presence of the selection.
  */
 export type ExtantOption = {
-  autoAdd: boolean,
   name: string,
   key: string,
   kind: 'extant-option',
@@ -26,7 +25,6 @@ export type ExtantOption = {
  * For a flat selection, use ExclusiveOption with ExtantOption children.
  */
 export type ExclusiveOption = {
-  autoAdd: boolean,
   default: string,
   name: string,
   key: string,
@@ -39,11 +37,21 @@ export type ExclusiveOption = {
 }
 
 /**
+ * Fixed options indicate options that should always be present and cannot be
+ * added/removed.
+ */
+export type FixedOption = {
+  children: ReadonlyArray<Entity>,
+  key: string,
+  kind: 'fixed-option',
+  name: string,
+}
+
+/**
  * NumericOptions reflect a single number. This number can be governed by
  * minimums and maximums.
  */
 export type NumericOption = {
-  autoAdd: boolean,
   children: ReadonlyArray<Entity>,
   default: number,
   key: string,
@@ -59,7 +67,6 @@ export type NumericOption = {
  * presented regardless of selection state.
  */
 export type BooleanOption = {
-  autoAdd: boolean,
   children: ReadonlyArray<Entity>,
   default: boolean,
   key: string,
@@ -77,17 +84,17 @@ export type BooleanOption = {
  * selection could have its own customizations.
  */
 export type RepeatingExtantOption = {
-  autoAdd: boolean,
-  name: string,
+  children: ReadonlyArray<Entity>,
   key: string,
   kind: 'repeating-extant-option',
-  children: ReadonlyArray<Entity>,
+  name: string | null,
 }
 
 export type AppOption =
   | BooleanOption
   | ExclusiveOption
   | ExtantOption
+  | FixedOption
   | NumericOption
   | RepeatingExtantOption
 
@@ -115,7 +122,14 @@ export type ExtantSelection = {
   kind: 'extant-selection',
   name: string | null,
   optionKey: string,
-  selected: boolean,
+}
+
+export type FixedSelection = {
+  children: ReadonlyArray<AppSelection>,
+  id: string,
+  kind: 'fixed-selection',
+  name: string | null,
+  optionKey: string,
 }
 
 export type NumericSelection = {
@@ -151,6 +165,7 @@ export type AppSelection =
   | BooleanSelection
   | ExclusiveSelection
   | ExtantSelection
+  | FixedSelection
   | NumericSelection
   | RepeatingExtantSelection
 
@@ -262,11 +277,24 @@ export const isCost = (x: Entity): x is Cost => {
 }
 
 /**
+ * Automatically add fixed options and the default selections of exclusive
+ * options.
+ */
+export const isAutomaticallyAdded = (
+  option: AppOption,
+  child: AppOption,
+): boolean => {
+  return child.kind == 'fixed-option'
+    || option.kind == 'exclusive-option' && option.default == child.key
+}
+
+/**
  * Generate AppSelection children from an AppOption.
  */
 export const selectionChildren = (x: AppOption): ReadonlyArray<AppSelection> => {
   return x.children
     .filter(isOption)
+    .filter(isAutomaticallyAdded.bind(null, x))
     .map(optionToSelection)
 }
 
@@ -274,57 +302,78 @@ export const selectionChildren = (x: AppOption): ReadonlyArray<AppSelection> => 
  * Generate an AppSelection from an AppOption.
  */
 export const optionToSelection = (x: AppOption): AppSelection => {
-  switch(x.kind) {
+  switch (x.kind) {
     case 'boolean-option':
-      const bs: BooleanSelection = {
-        children: selectionChildren(x),
-        id: v4(),
-        kind: 'boolean-selection',
-        name: x.name,
-        optionKey: x.key,
-        value: true,
+      {
+        const selection: BooleanSelection = {
+          children: selectionChildren(x),
+          id: v4(),
+          kind: 'boolean-selection',
+          name: x.name,
+          optionKey: x.key,
+          value: true,
+        }
+        return selection
       }
-      return bs
     case 'extant-option':
-      const exts: ExtantSelection = {
-        children: selectionChildren(x),
-        id: v4(),
-        kind: 'extant-selection',
-        name: x.name,
-        optionKey: x.key,
-        selected: x.autoAdd,
+      {
+        const selection: ExtantSelection = {
+          children: selectionChildren(x),
+          id: v4(),
+          kind: 'extant-selection',
+          name: x.name,
+          optionKey: x.key,
+        }
+        return selection
       }
-      return exts
     case 'exclusive-option':
-      const exco: ExclusiveSelection = {
-        children: selectionChildren(x),
-        id: v4(),
-        kind: 'exclusive-selection',
-        name: x.name,
-        optionKey: x.key,
-        selected: x.default,
+      {
+        const selection: ExclusiveSelection = {
+          children: selectionChildren(x),
+          id: v4(),
+          kind: 'exclusive-selection',
+          name: x.name,
+          optionKey: x.key,
+          selected: x.default,
+        }
+        return selection
       }
-      return exco
+    case 'fixed-option':
+      {
+        const selection: FixedSelection = {
+          children: selectionChildren(x),
+          id: v4(),
+          kind: 'fixed-selection',
+          name: x.name,
+          optionKey: x.key,
+        }
+        return selection
+      }
     case 'numeric-option':
-      const ns: NumericSelection = {
-        children: selectionChildren(x),
-        id: v4(),
-        kind: 'numeric-selection',
-        name: x.name,
-        optionKey: x.key,
-        value: x.default,
+      {
+        const selection: NumericSelection = {
+          children: selectionChildren(x),
+          id: v4(),
+          kind: 'numeric-selection',
+          name: x.name,
+          optionKey: x.key,
+          value: x.default,
+        }
+        return selection
       }
-      return ns
     case 'repeating-extant-option':
-      const reo: RepeatingExtantSelection = {
-        // TODO: Consider identifying which ones should be automatically added.
-        children: [],
-        id: v4(),
-        kind: 'repeating-extant-selection',
-        name: x.name,
-        optionKey: x.key,
+      {
+        const selection: RepeatingExtantSelection = {
+          // TODO: Consider identifying which ones should be automatically
+          // added.
+          children: [],
+          id: v4(),
+          kind: 'repeating-extant-selection',
+          name: x.name,
+          optionKey: x.key,
+        }
+        return selection
       }
-      return reo
   }
 }
 
@@ -443,20 +492,16 @@ export const selectionCost = (
     // TODO handle this error, but we should never get here.
     return 0
   } else {
-    if(selection.kind == 'extant-selection' && !selection.selected) {
-      return 0
-    } else {
-      return option.children
-        .filter(isCost)
-        .filter(c => c.costKind == costKind)
-        .map(c => c.amount(options, root, selection))
+    return option.children
+      .filter(isCost)
+      .filter(c => c.costKind == costKind)
+      .map(c => c.amount(options, root, selection))
+      .reduce(add, 0)
+      +
+      selection.children.map(
+        selectionCost.bind(null, costKind, options, root),
+      )
         .reduce(add, 0)
-        +
-        selection.children.map(
-          selectionCost.bind(null, costKind, options, root),
-        )
-          .reduce(add, 0)
-    }
   }
 }
 

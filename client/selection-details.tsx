@@ -17,7 +17,7 @@ export default (
   const Component = (props: Props): ReactElement => {
 
     const children = props.selection?.children.filter(c => {
-      return c.kind != 'extant-selection' || c.selected
+      return c.kind != 'boolean-selection' || c.value
     }) || []
     return props.selection != null
       ? <article className={className}>

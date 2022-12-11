@@ -12,6 +12,9 @@ import {
   type Component as ExtantSelectionEditorComponent,
 } from './extant-selection-editor'
 import {
+  type Component as FixedSelectionEditorComponent,
+} from './fixed-selection-editor'
+import {
   type Component as NumericSelectionEditorComponent,
 } from './numeric-selection-editor'
 import {
@@ -30,6 +33,7 @@ export default (
   BooleanSelectionEditor: BooleanSelectionEditorComponent,
   ExclusiveSelectionEditor: ExclusiveSelectionEditorComponent,
   ExtantSelectionEditor: ExtantSelectionEditorComponent,
+  FixedSelectionEditor: FixedSelectionEditorComponent,
   NumericSelectionEditor: NumericSelectionEditorComponent,
   RepeatingExtantSelectionEditor: RepeatingExtantSelectionEditorComponent,
 ): FC<Props> => {
@@ -51,6 +55,8 @@ export default (
         return <ExclusiveSelectionEditor options={options} selection={x} />
       case 'extant-selection':
         return <ExtantSelectionEditor options={options} selection={x} />
+        case 'fixed-selection':
+        return <FixedSelectionEditor options={options} selection={x} />
       case 'numeric-selection':
         return <NumericSelectionEditor options={options} selection={x} />
       case 'repeating-extant-selection':

@@ -1,4 +1,5 @@
 import {
+  optionToSelection,
   type AppSelection,
   type ExclusiveSelection,
   type NumericSelection,
@@ -27,9 +28,7 @@ export const selectionAddChildReducer = (
       {},
       selection,
       { children: append(
-        action.newChild.kind == 'extant-selection'
-          ? { ...action.newChild, selected: true }
-          : action.newChild,
+        action.newChild,
         selection.children,
       ) },
     )
@@ -42,23 +41,24 @@ export const selectionChangeExclusiveReducer = (
   action: AppAction,
   selection: AppSelection,
 ): AppSelection => {
-  if(action.type == 'selection-change-exclusive') {
-    return {
-      ...action.selection,
-      selected: action.selected,
-      children: selection.children.map(c => {
-        if(c.kind == 'extant-selection') {
-          return {
-            ...c,
-            // TODO: Selected should really be the ID, but is optionKey. This
-            // creates its own complications. Recursive edits would need to
-            // adjust to the new ID like Focus does.
-            selected: action.selected == c.optionKey,
-          }
-        } else {
-          return c
-        }
-      }),
+  if(action.type == 'selection-change-exclusive'
+    && selection.kind == 'exclusive-selection') {
+    const children = [...selection.children]
+    // Swap the existing selection out with the new one.
+    const i = children.findIndex(c => c.optionKey == selection.selected)
+    if(i < 0) {
+      console.error(`Could not swap "${selection.selected}" to \
+"${action.selected.key}" in exclusive selection "${selection.optionKey}" \
+because "${selection.selected}" does not exist in "${selection.optionKey}". \
+Aborting selection change.`)
+      return selection
+    } else  {
+      children[i] = optionToSelection(action.selected)
+      return {
+        ...action.selection,
+        children,
+        selected: action.selected.key,
+      }
     }
   } else {
     return selection

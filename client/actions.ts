@@ -1,4 +1,9 @@
-import { AppSelection, ExclusiveSelection, NumericSelection } from "./model"
+import {
+  type AppOption,
+  type AppSelection,
+  type ExclusiveSelection,
+  type NumericSelection,
+} from "./model"
 
 export type SelectionFocusAction = {
   selection: AppSelection,
@@ -13,14 +18,20 @@ export type SelectionAddChildAction = {
 
 export type SelectionChangeExclusiveAction = {
   selection: ExclusiveSelection,
+  selected: AppOption,
   type: 'selection-change-exclusive',
-  selected: string,
 }
 
 export type SelectionChangeNumberAction = {
   selection: NumericSelection,
   type: 'selection-change-number',
   value: number,
+}
+
+export type SelectionChangeNameAction = {
+  name: string,
+  selection: AppSelection,
+  type: 'selection-change-name',
 }
 
 export type SelectionRemoveChildAction = {
@@ -38,6 +49,7 @@ export type AppAction =
   | SelectionAddChildAction
   | SelectionChangeExclusiveAction
   | SelectionChangeNumberAction
+  | SelectionChangeNameAction
   | SelectionCreateRosterAction
   | SelectionFocusAction
   | SelectionRemoveChildAction
@@ -58,12 +70,26 @@ export const selectionAddChildrenAction = (
 
 export const selectionChangeExclusiveAction = (
   selection: ExclusiveSelection,
-  selected: string,
+  selected: AppOption,
 ): SelectionChangeExclusiveAction => {
   return {
     selection,
     type: 'selection-change-exclusive',
     selected,
+  }
+}
+
+/**
+ * Change the name of a selection.
+ */
+export const selectionChangeNameAction = (
+  selection: AppSelection,
+  name: string,
+): SelectionChangeNameAction => {
+  return {
+    name,
+    selection,
+    type: 'selection-change-name',
   }
 }
 
