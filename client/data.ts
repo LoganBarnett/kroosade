@@ -1,16 +1,10 @@
 // Store data here for now.
-import { always } from 'ramda'
 import { noneOption } from './data-generic'
 import {
   type ExclusiveOption,
   type ExtantOption,
-  type NumericOption,
   type AppOption,
   type RepeatingExtantOption,
-  cost,
-  modelCountPowerRating,
-  modelCountPoints,
-  modelCountValidation,
 } from './model'
 
 import {
