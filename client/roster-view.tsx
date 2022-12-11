@@ -76,9 +76,10 @@ export default (): FC<Props> => {
   const component = (props: Props): ReactElement => {
     const { state, dispatch } = useContext(Context)
     const createRoster = () => {
-      const option = options.find(o => o.key == 'roster')
+      const key = 'force'
+      const option = options.find(o => o.key == key)
       if(option == null) {
-        console.error('Option missing: roster')
+        console.error('Option missing: ' + key)
       } else {
         // TODO: Create the selection from the option. Otherwise we aren't
         // creating the correct selection type that follows the option.

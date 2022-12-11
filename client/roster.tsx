@@ -9,6 +9,8 @@ export type Props = {
   roster: AppSelection,
 }
 
+// TODO: This needs to be entirely revisited. We no longer have a roster as the
+// top-level entity and so this structure fails.
 export default (className: string): FC<Props> => {
   const RosterSelection = selectionFn('roster')
   const Detachment = selectionFn('detachment')
