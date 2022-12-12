@@ -11,6 +11,7 @@ export type BaseOption = {
   // any additional data types would necessitate adding more fields onto
   // AppOption types.
   children: ReadonlyArray<Entity>,
+  tags: ReadonlyArray<string>,
 }
 
 /**
@@ -68,11 +69,34 @@ export type RepeatingExtantOption = BaseOption & {
   kind: 'repeating-extant-option',
 }
 
+export type PoolOption = BaseOption & {
+  kind: 'pool-option',
+}
+
+/**
+ * This represents an option where the selections come from a pool rather than
+ * its children. Pool members are copied (and held as independent copies).
+ *
+ * This allows us to have means of adding options which come from either a
+ * crusade pool or an infinite "generic" pool, but the logic is more or less the
+ * same.
+ *
+ * A PooledRepeatingExtantOption doesn't have children which indicate which
+ * options are available, so instead it provides a tagged query. All tags
+ * provided use AND logic.
+ */
+export type PooledRepeatingExtantOption = BaseOption & {
+  kind: 'pooled-repeating-extant-option',
+  query: ReadonlyArray<string>,
+}
+
 export type AppOption =
   | BooleanOption
   | ExclusiveOption
   | ExtantOption
   | NumericOption
+  | PoolOption
+  | PooledRepeatingExtantOption
   | RepeatingExtantOption
 
 export type BooleanSelection = {
@@ -110,6 +134,22 @@ export type NumericSelection = {
   value: number,
 }
 
+export type PoolSelection = {
+  children: ReadonlyArray<AppSelection>,
+  id: string,
+  kind: 'pool-selection',
+  name: string | null,
+  optionKey: string,
+}
+
+export type PooledRepeatingExtantSelection = {
+  children: ReadonlyArray<AppSelection>,
+  id: string,
+  kind: 'pooled-repeating-extant-selection',
+  name: string | null,
+  optionKey: string,
+}
+
 export type RepeatingExtantSelection = {
   children: ReadonlyArray<AppSelection>,
   id: string,
@@ -135,6 +175,8 @@ export type AppSelection =
   | ExclusiveSelection
   | ExtantSelection
   | NumericSelection
+  | PoolSelection
+  | PooledRepeatingExtantSelection
   | RepeatingExtantSelection
 
 /**
@@ -315,6 +357,28 @@ export const optionToSelection = (x: AppOption): AppSelection => {
           name: x.name,
           optionKey: x.key,
           value: x.default,
+        }
+        return selection
+      }
+    case 'pool-option':
+      {
+        const selection: PoolSelection = {
+          children: [],
+          id: v4(),
+          kind: 'pool-selection',
+          name: x.name,
+          optionKey: x.key,
+        }
+        return selection
+      }
+    case 'pooled-repeating-extant-option':
+      {
+        const selection: PooledRepeatingExtantSelection = {
+          children: [],
+          id: v4(),
+          kind: 'pooled-repeating-extant-selection',
+          name: x.name,
+          optionKey: x.key,
         }
         return selection
       }

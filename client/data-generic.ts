@@ -11,4 +11,5 @@ export const noneOption: ExtantOption = {
   kind: 'extant-option',
   key: 'none',
   removable: false,
+  tags: [],
 }

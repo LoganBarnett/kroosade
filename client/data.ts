@@ -9,6 +9,7 @@ import {
 
 import {
   detachmentsOption as spaceElfDetachmentsOption,
+  factionPoolOption as spaceElfFactionPoolOption,
   options as spaceElfOptions,
 } from './data-space-elves'
 
@@ -20,6 +21,7 @@ export const factionDetachmentsOption: RepeatingExtantOption = {
   name: 'Faction Detatchments',
   key: 'faction-detachments',
   kind: 'repeating-extant-option',
+  tags: [],
 }
 
 export const rosterOpenPlayOption: ExtantOption = {
@@ -31,6 +33,7 @@ export const rosterOpenPlayOption: ExtantOption = {
   key: 'roster-open-play',
   kind: 'extant-option',
   removable: false,
+  tags: [],
 }
 
 export const rosterMatchedPlayOption: ExtantOption = {
@@ -42,6 +45,7 @@ export const rosterMatchedPlayOption: ExtantOption = {
   key: 'roster-matched-play',
   kind: 'extant-option',
   removable: false,
+  tags: [],
 }
 
 export const rosterNarrativePlayOption: ExtantOption = {
@@ -53,17 +57,18 @@ export const rosterNarrativePlayOption: ExtantOption = {
   key: 'roster-narrative-play',
   kind: 'extant-option',
   removable: false,
+  tags: [],
 }
 
-export const orderOfBattleOption: ExtantOption = {
+export const orderOfBattleOption: RepeatingExtantOption = {
   autoAdd: true,
   children: [
-    factionDetachmentsOption,
+    spaceElfFactionPoolOption,
   ],
   key: 'order-of-battle',
-  kind: 'extant-option',
+  kind: 'repeating-extant-option',
   name: 'Order of Battle',
-  removable: false,
+  tags: [],
 }
 
 export const multiRosterNarrativeOption: RepeatingExtantOption = {
@@ -74,6 +79,7 @@ export const multiRosterNarrativeOption: RepeatingExtantOption = {
   name: 'Crusade Armies',
   key: 'crusade-armies',
   kind: 'repeating-extant-option',
+  tags: [],
 }
 
 export const crusadeForceOption: ExtantOption = {
@@ -86,6 +92,7 @@ export const crusadeForceOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Crusade Force',
   removable: false,
+  tags: [],
 }
 
 export const forceOption: ExclusiveOption = {
@@ -100,6 +107,7 @@ export const forceOption: ExclusiveOption = {
   key: 'force',
   kind: 'exclusive-option',
   name: 'Force',
+  tags: [],
 }
 
 // TypeScript isn't smart enough to realize that the variable is supposed to be

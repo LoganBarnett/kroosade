@@ -64,6 +64,10 @@ export default (
         />
       case 'numeric-selection':
         return <NumericSelectionEditor options={options} selection={x} />
+      case 'pool-selection':
+        return <>Pool selection not implemented.</>
+      case 'pooled-repeating-extant-selection':
+        return <>Pooled repeating selection not implemented.</>
       case 'repeating-extant-selection':
         return <RepeatingExtantSelectionEditor options={options} selection={x}/>
     }

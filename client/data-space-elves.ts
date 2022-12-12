@@ -4,6 +4,8 @@ import {
   type ExclusiveOption,
   type ExtantOption,
   type NumericOption,
+  type PoolOption,
+  type PooledRepeatingExtantOption,
   type AppOption,
   type RepeatingExtantOption,
   cost,
@@ -22,6 +24,7 @@ export const stingingElvesLeaderPowerClawMasterOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Claw Master',
   removable: false,
+  tags: [],
 }
 
 export const stingingElvesLeaderPowerStrikeFromTheShadowsOption: ExtantOption = {
@@ -34,6 +37,7 @@ export const stingingElvesLeaderPowerStrikeFromTheShadowsOption: ExtantOption = 
   kind: 'extant-option',
   name: 'Strike From Shadows',
   removable: false,
+  tags: [],
 }
 
 export const stingingElvesLeaderPowerStingersStingOption: ExtantOption = {
@@ -46,6 +50,7 @@ export const stingingElvesLeaderPowerStingersStingOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Stinger\'s Sting',
   removable: false,
+  tags: [],
 }
 
 export const stingingElvesLeaderPowersOption: ExclusiveOption = {
@@ -60,6 +65,7 @@ export const stingingElvesLeaderPowersOption: ExclusiveOption = {
   key: 'stinging-elves-leader-power',
   kind: 'exclusive-option',
   name: 'Stinging Elves Leader Power',
+  tags: [],
 }
 
 export const stingingElvesLeaderWargearLeafPistolAndStingerChainswordOption: ExtantOption = {
@@ -69,6 +75,7 @@ export const stingingElvesLeaderWargearLeafPistolAndStingerChainswordOption: Ext
   kind: 'extant-option',
   name: 'Leaf Pistol and Stinger Chainsword',
   removable: false,
+  tags: [],
 }
 
 export const stingingElvesLeaderWargearStingersClawAndStingerChainswordOption: ExtantOption = {
@@ -80,6 +87,7 @@ export const stingingElvesLeaderWargearStingersClawAndStingerChainswordOption: E
   kind: 'extant-option',
   name: 'Stinger\'s Claw and Stinger Chainsword',
   removable: false,
+  tags: [],
 }
 
 export const stingingElvesLeaderWargearMandibleBladeOption: ExtantOption = {
@@ -91,6 +99,7 @@ export const stingingElvesLeaderWargearMandibleBladeOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Mandible Blade',
   removable: false,
+  tags: [],
 }
 
 export const stingingElvesLeaderWargearOption: ExclusiveOption = {
@@ -104,6 +113,7 @@ export const stingingElvesLeaderWargearOption: ExclusiveOption = {
   key: 'stinging-elves-leader-wargear',
   kind: 'exclusive-option',
   name: 'Stinging Elves Leader Wargear',
+  tags: [],
 }
 
 export const stingingElvesUnitSizeOption: NumericOption = {
@@ -129,6 +139,7 @@ export const stingingElvesUnitSizeOption: NumericOption = {
   maximum: 9,
   minimum: 4,
   name: 'Stinging Elves models',
+  tags: [],
 }
 
 export const stingingElvesLeaderOption: ExtantOption = {
@@ -142,6 +153,7 @@ export const stingingElvesLeaderOption: ExtantOption = {
   ],
   key: 'stinging-elves-leader',
   removable: false,
+  tags: [],
 }
 
 
@@ -155,6 +167,7 @@ export const stingingElvesUnitOption: ExtantOption = {
   ],
   key: 'stinging-elves-unit',
   removable: false,
+  tags: ['space-elves', 'elite'],
 }
 
 export const spartanLeafHurlerOption: ExtantOption = {
@@ -164,6 +177,7 @@ export const spartanLeafHurlerOption: ExtantOption = {
   children: [],
   key: 'spartan-elves-leader-wargear-spartan-leaf-hurler',
   removable: false,
+  tags: [],
 }
 
 export const twoSpartanLeafHurlersOption: ExtantOption = {
@@ -173,6 +187,7 @@ export const twoSpartanLeafHurlersOption: ExtantOption = {
   children: [],
   key: 'spartan-elves-leader-wargear-two-spartan-leaf-hurlers',
   removable: false,
+  tags: [],
 }
 
 export const lightbarrierAndSiblingswordOption: ExtantOption = {
@@ -184,6 +199,7 @@ export const lightbarrierAndSiblingswordOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Lightbarrier and Siblingsword',
   removable: false,
+  tags: [],
 }
 
 export const lightbarrierAndPowerGlaiveOption: ExtantOption = {
@@ -195,6 +211,7 @@ export const lightbarrierAndPowerGlaiveOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Lightbarrier and Power Glaive',
   removable: false,
+  tags: [],
 }
 
 export const leafPistolAndSiblingswordOption: ExtantOption = {
@@ -204,6 +221,7 @@ export const leafPistolAndSiblingswordOption: ExtantOption = {
   key: 'spartan-elves-leader-wargear-leaf-pistol-and-siblingsword',
   name: 'Leaf Pistol and Siblingsword',
   removable: false,
+  tags: [],
 }
 
 export const leafPistolAndPowerGlaiveOption: ExtantOption = {
@@ -213,6 +231,7 @@ export const leafPistolAndPowerGlaiveOption: ExtantOption = {
   key: 'spartan-elves-leader-wargear-leaf-pistol-and-power-glaive',
   name: 'Leaf Pistol and Power Glaive',
   removable: false,
+  tags: [],
 }
 
 export const spartanElvesLeaderWargearOption: ExclusiveOption = {
@@ -229,6 +248,7 @@ export const spartanElvesLeaderWargearOption: ExclusiveOption = {
   name: 'Leader Wargear',
   kind: 'exclusive-option',
   key: 'spartan-elves-leader-wargear',
+  tags: [],
 }
 
 export const spartanElvesLeaderPowerBraceForChargeOption: ExtantOption = {
@@ -241,6 +261,7 @@ export const spartanElvesLeaderPowerBraceForChargeOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Brace For Charge',
   removable: false,
+  tags: [],
 }
 
 export const spartanElvesLeaderPowerLeafBlowerOption: ExtantOption = {
@@ -253,6 +274,7 @@ export const spartanElvesLeaderPowerLeafBlowerOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Leaf Blower',
   removable: false,
+  tags: [],
 }
 
 export const spartanElvesLeaderPowerWalkAndChewBubbleGumOption: ExtantOption = {
@@ -265,6 +287,7 @@ export const spartanElvesLeaderPowerWalkAndChewBubbleGumOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Walk and Chew Bubblegum',
   removable: false,
+  tags: [],
 }
 
 export const spartanElvesLeaderPowerOption: ExclusiveOption = {
@@ -279,6 +302,7 @@ export const spartanElvesLeaderPowerOption: ExclusiveOption = {
   key: 'spartan-elves-leader-power',
   kind: 'exclusive-option',
   name: 'Spartan Elves Leader Power',
+  tags: [],
 }
 
 export const spartanElvesUnitSizeOption: NumericOption = {
@@ -304,6 +328,7 @@ export const spartanElvesUnitSizeOption: NumericOption = {
   maximum: 9,
   minimum: 4,
   name: 'Spartan Elves models',
+  tags: [],
 }
 
 export const spartanElvesLeaderOption: ExtantOption = {
@@ -317,6 +342,7 @@ export const spartanElvesLeaderOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Spartan Elves Leader',
   removable: false,
+  tags: [],
 }
 
 
@@ -330,17 +356,20 @@ export const spartanElvesUnitOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Spartan Elves',
   removable: true,
+  tags: ['space-elves', 'elite'],
 }
 
-export const eliteBattlefieldRole: RepeatingExtantOption = {
+export const eliteBattlefieldRole: PooledRepeatingExtantOption = {
   autoAdd: true,
   name: 'Elites',
   key: 'space-elves-elite-battlefield-role',
-  kind: 'repeating-extant-option',
+  kind: 'pooled-repeating-extant-option',
   children: [
     spartanElvesUnitOption,
     stingingElvesUnitOption,
   ],
+  query: ['elite', 'space-elves'],
+  tags: [],
 }
 
 export const patrolDetachmentOption: ExtantOption = {
@@ -352,6 +381,7 @@ export const patrolDetachmentOption: ExtantOption = {
   key: 'space-elves-patrol-detachment',
   kind: 'extant-option',
   removable: false,
+  tags: [],
 }
 
 export const battalionDetachmentOption: ExtantOption = {
@@ -363,6 +393,7 @@ export const battalionDetachmentOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Battalion Detachment',
   removable: false,
+  tags: [],
 }
 
 export const detachmentsOption: RepeatingExtantOption = {
@@ -374,30 +405,45 @@ export const detachmentsOption: RepeatingExtantOption = {
   key: 'space-elves-detachments',
   kind: 'repeating-extant-option',
   name: 'Space Elf Detatchments',
+  tags: [],
+}
+
+export const factionPoolOption: PoolOption = {
+  autoAdd: true,
+  // All units should be listed here.
+  children: [
+    spartanElvesUnitOption,
+    stingingElvesUnitOption,
+  ],
+  key: 'space-elves-faction-pool',
+  kind: 'pool-option',
+  name: 'Space Elves Faction Pool',
+  tags: ['space-elves'],
 }
 
 export const options: ReadonlyArray<AppOption> = [
-  spartanLeafHurlerOption,
   battalionDetachmentOption,
-  patrolDetachmentOption,
   detachmentsOption,
+  eliteBattlefieldRole,
+  factionPoolOption,
+  leafPistolAndPowerGlaiveOption,
+  leafPistolAndSiblingswordOption,
+  lightbarrierAndPowerGlaiveOption,
+  lightbarrierAndSiblingswordOption,
+  patrolDetachmentOption,
   spartanElvesLeaderOption,
   spartanElvesLeaderPowerBraceForChargeOption,
-  spartanElvesLeaderPowerOption,
   spartanElvesLeaderPowerLeafBlowerOption,
+  spartanElvesLeaderPowerOption,
   spartanElvesLeaderPowerWalkAndChewBubbleGumOption,
   spartanElvesLeaderWargearOption,
   spartanElvesUnitOption,
   spartanElvesUnitSizeOption,
-  eliteBattlefieldRole,
-  lightbarrierAndSiblingswordOption,
-  lightbarrierAndPowerGlaiveOption,
-  leafPistolAndSiblingswordOption,
-  leafPistolAndPowerGlaiveOption,
+  spartanLeafHurlerOption,
   stingingElvesLeaderOption,
   stingingElvesLeaderPowerClawMasterOption,
-  stingingElvesLeaderPowerStrikeFromTheShadowsOption,
   stingingElvesLeaderPowerStingersStingOption,
+  stingingElvesLeaderPowerStrikeFromTheShadowsOption,
   stingingElvesLeaderPowersOption,
   stingingElvesLeaderWargearOption,
   stingingElvesUnitOption,
