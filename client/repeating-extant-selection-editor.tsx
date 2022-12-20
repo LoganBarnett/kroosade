@@ -20,7 +20,7 @@ import {
   type AppOption,
   type RepeatingExtantSelection,
   isExtantSelection,
-  isOption,
+  isOptionFromEntity,
   optionToSelection,
 } from './model'
 import { Context } from './reducer-provider'
@@ -42,7 +42,7 @@ type State = {
 const defaultState = (option: AppOption): State => {
   return {
     adding: false,
-    newOptionCandidate: option.children.filter(isOption)[0],
+    newOptionCandidate: option.children.filter(isOptionFromEntity)[0],
   }
 }
 
@@ -53,12 +53,12 @@ const setNewOptionCandidate = (
   e: React.ChangeEvent<HTMLSelectElement>,
 ): void => {
   console.log('setting new option to', e.target.value, option.children
-      .filter(isOption)
+      .filter(isOptionFromEntity)
       .find(o => o.key == e.target.value))
   setState({
     ...state,
     newOptionCandidate: option.children
-      .filter(isOption)
+      .filter(isOptionFromEntity)
       .find(o => o.key == e.target.value),
   })
 }
@@ -124,7 +124,7 @@ export default (
             value={state.newOptionCandidate?.key}
           >
             {option.children
-              .filter(isOption)
+              .filter(isOptionFromEntity)
               .map(o => <option key={o.key} value={o.key}>{o.name}</option>)
             }
           </select>

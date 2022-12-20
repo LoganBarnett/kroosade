@@ -8,3 +8,6 @@ node_modules/**/*
 .log/**/*
 # Output files.
 dist
+# Don't commit copy right information, but let us play with it locally if we
+# have it.
+data-copyrighted.ts

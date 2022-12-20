@@ -167,7 +167,7 @@ export const stingingElvesUnitOption: ExtantOption = {
   ],
   key: 'stinging-elves-unit',
   removable: false,
-  tags: ['space-elves', 'elite'],
+  tags: ['space-elves-faction', 'elite'],
 }
 
 export const spartanLeafHurlerOption: ExtantOption = {
@@ -356,56 +356,7 @@ export const spartanElvesUnitOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Spartan Elves',
   removable: true,
-  tags: ['space-elves', 'elite'],
-}
-
-export const eliteBattlefieldRole: PooledRepeatingExtantOption = {
-  autoAdd: true,
-  name: 'Elites',
-  key: 'space-elves-elite-battlefield-role',
-  kind: 'pooled-repeating-extant-option',
-  children: [
-    spartanElvesUnitOption,
-    stingingElvesUnitOption,
-  ],
-  query: ['elite', 'space-elves'],
-  tags: [],
-}
-
-export const patrolDetachmentOption: ExtantOption = {
-  autoAdd: true,
-  children: [
-    eliteBattlefieldRole,
-  ],
-  name: 'Patrol Detachment',
-  key: 'space-elves-patrol-detachment',
-  kind: 'extant-option',
-  removable: false,
-  tags: [],
-}
-
-export const battalionDetachmentOption: ExtantOption = {
-  autoAdd: false,
-  children: [
-    eliteBattlefieldRole,
-  ],
-  key: 'space-elves-battalion-detachment',
-  kind: 'extant-option',
-  name: 'Battalion Detachment',
-  removable: false,
-  tags: [],
-}
-
-export const detachmentsOption: RepeatingExtantOption = {
-  autoAdd: false,
-  children: [
-    battalionDetachmentOption,
-    patrolDetachmentOption,
-  ],
-  key: 'space-elves-detachments',
-  kind: 'repeating-extant-option',
-  name: 'Space Elf Detatchments',
-  tags: [],
+  tags: ['space-elves-faction', 'elite'],
 }
 
 export const factionPoolOption: PoolOption = {
@@ -415,22 +366,31 @@ export const factionPoolOption: PoolOption = {
     spartanElvesUnitOption,
     stingingElvesUnitOption,
   ],
+  from: null,
+  infinite: true,
   key: 'space-elves-faction-pool',
   kind: 'pool-option',
   name: 'Space Elves Faction Pool',
-  tags: ['space-elves'],
+  tags: ['space-elves-faction'],
+}
+
+export const factionCrusadePoolOption: PoolOption = {
+  autoAdd: true,
+  children: [],
+  from: 'space-elves-faction-pool',
+  infinite: true,
+  key: 'space-elves-faction-crusade-pool',
+  kind: 'pool-option',
+  name: 'Space Elves Faction Crusade Pool',
+  tags: ['space-elves-faction'],
 }
 
 export const options: ReadonlyArray<AppOption> = [
-  battalionDetachmentOption,
-  detachmentsOption,
-  eliteBattlefieldRole,
   factionPoolOption,
   leafPistolAndPowerGlaiveOption,
   leafPistolAndSiblingswordOption,
   lightbarrierAndPowerGlaiveOption,
   lightbarrierAndSiblingswordOption,
-  patrolDetachmentOption,
   spartanElvesLeaderOption,
   spartanElvesLeaderPowerBraceForChargeOption,
   spartanElvesLeaderPowerLeafBlowerOption,

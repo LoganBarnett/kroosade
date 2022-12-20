@@ -15,14 +15,21 @@ import {
   type Component as NumericSelectionEditorComponent,
 } from './numeric-selection-editor'
 import {
+  type Component as PoolSelectionEditorComponent,
+} from './pool-selection-editor'
+import {
+  type Component as PooledRepeatingExtantSelectionEditorComponent,
+} from './pooled-repeating-extant-selection-editor'
+import {
   type Component as RepeatingExtantSelectionEditorComponent,
 } from './repeating-extant-selection-editor'
-import React, { type FC, type ReactNode, type ReactElement } from 'react'
+import React, { type FC, type ReactElement } from 'react'
 
 export type Props = {
   options: ReadonlyArray<AppOption>,
   parent: AppSelection | undefined | null,
   selection: AppSelection,
+  scopedOptions: ReadonlyArray<AppSelection>,
 }
 
 export type Component = FC<Props>
@@ -32,11 +39,14 @@ export default (
   ExclusiveSelectionEditor: ExclusiveSelectionEditorComponent,
   ExtantSelectionEditor: ExtantSelectionEditorComponent,
   NumericSelectionEditor: NumericSelectionEditorComponent,
+  PoolSelectionEditor: PoolSelectionEditorComponent,
+  PooledRepeatingExtantSelectionEditor: PooledRepeatingExtantSelectionEditorComponent,
   RepeatingExtantSelectionEditor: RepeatingExtantSelectionEditorComponent,
 ): FC<Props> => {
   const selectionEditor = (
     options: ReadonlyArray<AppOption>,
     parent: AppSelection | null | undefined,
+    scopedOptions: ReadonlyArray<AppSelection>,
     x: AppSelection,
   ): ReactElement => {
     // TypeScript derping. Inspired by:
@@ -64,10 +74,16 @@ export default (
         />
       case 'numeric-selection':
         return <NumericSelectionEditor options={options} selection={x} />
+      case 'pool-scope-selection':
+        return <></>
       case 'pool-selection':
-        return <>Pool selection not implemented.</>
+        return <PoolSelectionEditor options={options} selection={x} />
       case 'pooled-repeating-extant-selection':
-        return <>Pooled repeating selection not implemented.</>
+        return <PooledRepeatingExtantSelectionEditor
+          options={options}
+          selection={x}
+          scopedOptions={scopedOptions}
+        />
       case 'repeating-extant-selection':
         return <RepeatingExtantSelectionEditor options={options} selection={x}/>
     }
@@ -80,7 +96,12 @@ export default (
   }
 
   const component = (props: Props): ReactElement => {
-    return selectionEditor(props.options, props.parent, props.selection)
+    return selectionEditor(
+      props.options,
+      props.parent,
+      props.scopedOptions,
+      props.selection,
+    )
   }
   component.displayName = 'SelectionEditor'
   return component

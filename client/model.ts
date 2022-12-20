@@ -1,6 +1,7 @@
-import { add } from 'ramda'
+import { add, chain } from 'ramda'
 import { v4 } from 'uuid'
 import { findInNumericRange } from './utils'
+import { intoOption, type Option } from './option'
 
 export type BaseOption = {
   autoAdd: boolean,
@@ -69,7 +70,34 @@ export type RepeatingExtantOption = BaseOption & {
   kind: 'repeating-extant-option',
 }
 
+/**
+ * Pool Scopes are the parent which all scopes for pools are established. Under
+ * a pool scope, all pool sensitive options will use the scope. The pool scope
+ * refers to the scope it uses in its selection.
+ */
+export type PoolScopeOption = BaseOption & {
+  kind: 'pool-scope-option',
+  poolVariable: string,
+}
+
+/**
+ * Use this to mark the kind of pool to be used.
+ *
+ * Pools influence the options under them. Normal rosters will have a pool
+ * selection near or at their root, which indicates where their options can come
+ * from. Crusade rosters have a special pool.
+ *
+ * Infinite pools do not prompt exclusion in option selection.
+ *
+ * PooledRepeatingExtantOptions are sensitive to what options have been selected
+ * thus far. Other options are not sensitive and will ignore the pool. This
+ * allows us to control when we need to restrict options at a fine grained
+ * level.
+ */
 export type PoolOption = BaseOption & {
+  // Use null/undefined to indicate that this pool is general.
+  from: string | null | undefined,
+  infinite: boolean,
   kind: 'pool-option',
 }
 
@@ -87,7 +115,8 @@ export type PoolOption = BaseOption & {
  */
 export type PooledRepeatingExtantOption = BaseOption & {
   kind: 'pooled-repeating-extant-option',
-  query: ReadonlyArray<string>,
+  queryTags: ReadonlyArray<string>,
+  queryVariables: ReadonlyArray<string>,
 }
 
 export type AppOption =
@@ -95,67 +124,51 @@ export type AppOption =
   | ExclusiveOption
   | ExtantOption
   | NumericOption
+  | PoolScopeOption
   | PoolOption
   | PooledRepeatingExtantOption
   | RepeatingExtantOption
 
-export type BooleanSelection = {
+export type BaseSelection = {
   children: ReadonlyArray<AppSelection>,
   id: string,
-  kind: 'boolean-selection',
   name: string | null,
   optionKey: string,
+}
+
+export type BooleanSelection = BaseSelection & {
+  kind: 'boolean-selection',
   value: boolean,
 }
 
-export type ExclusiveSelection = {
-  children: ReadonlyArray<AppSelection>,
-  id: string,
+export type ExclusiveSelection = BaseSelection & {
   kind: 'exclusive-selection',
-  name: string | null,
-  optionKey: string,
   selected: string,
 }
 
-export type ExtantSelection = {
-  children: ReadonlyArray<AppSelection>,
-  id: string,
+export type ExtantSelection = BaseSelection & {
   kind: 'extant-selection',
-  name: string | null,
-  optionKey: string,
 }
 
-export type NumericSelection = {
-  children: ReadonlyArray<AppSelection>,
-  id: string,
+export type NumericSelection = BaseSelection & {
   kind: 'numeric-selection',
-  name: string | null,
-  optionKey: string,
   value: number,
 }
 
-export type PoolSelection = {
-  children: ReadonlyArray<AppSelection>,
-  id: string,
+export type PoolScopeSelection = BaseSelection & {
+  kind: 'pool-scope-selection',
+}
+
+export type PoolSelection = BaseSelection & {
   kind: 'pool-selection',
-  name: string | null,
-  optionKey: string,
 }
 
-export type PooledRepeatingExtantSelection = {
-  children: ReadonlyArray<AppSelection>,
-  id: string,
+export type PooledRepeatingExtantSelection = BaseSelection & {
   kind: 'pooled-repeating-extant-selection',
-  name: string | null,
-  optionKey: string,
 }
 
-export type RepeatingExtantSelection = {
-  children: ReadonlyArray<AppSelection>,
-  id: string,
+export type RepeatingExtantSelection = BaseSelection & {
   kind: 'repeating-extant-selection',
-  name: string | null,
-  optionKey: string,
 }
 
 /**
@@ -175,6 +188,7 @@ export type AppSelection =
   | ExclusiveSelection
   | ExtantSelection
   | NumericSelection
+  | PoolScopeSelection
   | PoolSelection
   | PooledRepeatingExtantSelection
   | RepeatingExtantSelection
@@ -260,19 +274,48 @@ export type Entity =
   | Cost
   | Validation
 
+export type Selectable = AppOption | AppSelection
+
 export const isExtantSelection = (x: AppSelection): x is ExtantSelection => {
   return x.kind == 'extant-selection'
 }
 
-export const isOption = (x: Entity): x is AppOption  => {
+export const isOptionFromEntity = (x: Entity): x is AppOption  => {
   switch(x.kind) {
-    case 'extant-option':
-    case 'exclusive-option':
-    case 'repeating-extant-option':
     case 'boolean-option':
+    case 'exclusive-option':
+    case 'extant-option':
     case 'numeric-option':
+    case 'pool-option':
+    case 'pool-scope-option':
+    case 'pooled-repeating-extant-option':
+    case 'repeating-extant-option':
       return true
-    default:
+    case 'cost':
+    case 'validation':
+      return false
+  }
+}
+
+export const isOptionFromSelectable = (x: Selectable): x is AppOption => {
+  switch(x.kind) {
+    case 'boolean-option':
+    case 'exclusive-option':
+    case 'extant-option':
+    case 'numeric-option':
+    case 'pool-option':
+    case 'pool-scope-option':
+    case 'pooled-repeating-extant-option':
+    case 'repeating-extant-option':
+      return true
+    case 'boolean-selection':
+    case 'exclusive-selection':
+    case 'extant-selection':
+    case 'numeric-selection':
+    case 'pool-selection':
+    case 'pool-scope-selection':
+    case 'pooled-repeating-extant-selection':
+    case 'repeating-extant-selection':
       return false
   }
 }
@@ -280,7 +323,6 @@ export const isOption = (x: Entity): x is AppOption  => {
 export const isValidation = (x: Entity): x is Validation  => {
   return x.kind == 'validation'
 }
-
 
 export const isCost = (x: Entity): x is Cost => {
   return x.kind == 'cost'
@@ -303,7 +345,7 @@ export const isAutomaticallyAdded = (
  */
 export const selectionChildren = (x: AppOption): ReadonlyArray<AppSelection> => {
   return x.children
-    .filter(isOption)
+    .filter(isOptionFromEntity)
     .filter(isAutomaticallyAdded.bind(null, x))
     .map(optionToSelection)
 }
@@ -313,88 +355,91 @@ export const selectionChildren = (x: AppOption): ReadonlyArray<AppSelection> => 
  */
 export const optionToSelection = (x: AppOption): AppSelection => {
   switch (x.kind) {
-    case 'boolean-option':
-      {
-        const selection: BooleanSelection = {
-          children: selectionChildren(x),
-          id: v4(),
-          kind: 'boolean-selection',
-          name: x.name,
-          optionKey: x.key,
-          value: true,
-        }
-        return selection
+    case 'boolean-option': {
+      const selection: BooleanSelection = {
+        children: selectionChildren(x),
+        id: v4(),
+        kind: 'boolean-selection',
+        name: x.name,
+        optionKey: x.key,
+        value: true,
       }
-    case 'extant-option':
-      {
-        const selection: ExtantSelection = {
-          children: selectionChildren(x),
-          id: v4(),
-          kind: 'extant-selection',
-          name: x.name,
-          optionKey: x.key,
-        }
-        return selection
+      return selection
+    }
+    case 'extant-option': {
+      const selection: ExtantSelection = {
+        children: selectionChildren(x),
+        id: v4(),
+        kind: 'extant-selection',
+        name: x.name,
+        optionKey: x.key,
       }
-    case 'exclusive-option':
-      {
-        const selection: ExclusiveSelection = {
-          children: selectionChildren(x),
-          id: v4(),
-          kind: 'exclusive-selection',
-          name: x.name,
-          optionKey: x.key,
-          selected: x.default,
-        }
-        return selection
+      return selection
+    }
+    case 'exclusive-option': {
+      const selection: ExclusiveSelection = {
+        children: selectionChildren(x),
+        id: v4(),
+        kind: 'exclusive-selection',
+        name: x.name,
+        optionKey: x.key,
+        selected: x.default,
       }
-    case 'numeric-option':
-      {
-        const selection: NumericSelection = {
-          children: selectionChildren(x),
-          id: v4(),
-          kind: 'numeric-selection',
-          name: x.name,
-          optionKey: x.key,
-          value: x.default,
-        }
-        return selection
+      return selection
+    }
+    case 'numeric-option': {
+      const selection: NumericSelection = {
+        children: selectionChildren(x),
+        id: v4(),
+        kind: 'numeric-selection',
+        name: x.name,
+        optionKey: x.key,
+        value: x.default,
       }
-    case 'pool-option':
-      {
-        const selection: PoolSelection = {
-          children: [],
-          id: v4(),
-          kind: 'pool-selection',
-          name: x.name,
-          optionKey: x.key,
-        }
-        return selection
+      return selection
+    }
+    case 'pool-option': {
+      const selection: PoolSelection = {
+        children: selectionChildren(x),
+        id: v4(),
+        kind: 'pool-selection',
+        name: x.name,
+        optionKey: x.key,
       }
-    case 'pooled-repeating-extant-option':
-      {
-        const selection: PooledRepeatingExtantSelection = {
-          children: [],
-          id: v4(),
-          kind: 'pooled-repeating-extant-selection',
-          name: x.name,
-          optionKey: x.key,
-        }
-        return selection
+      return selection
+    }
+    case 'pool-scope-option': {
+      const selection: PoolScopeSelection = {
+        children: selectionChildren(x),
+        id: v4(),
+        kind: 'pool-scope-selection',
+        name: x.name,
+        optionKey: x.key,
       }
-    case 'repeating-extant-option':
-      {
-        const selection: RepeatingExtantSelection = {
-          // TODO: Consider identifying which ones should be automatically
-          // added.
-          children: [],
-          id: v4(),
-          kind: 'repeating-extant-selection',
-          name: x.name,
-          optionKey: x.key,
-        }
-        return selection
+      return selection
+    }
+    case 'pooled-repeating-extant-option': {
+      const selection: PooledRepeatingExtantSelection = {
+        children: [],
+        id: v4(),
+        kind: 'pooled-repeating-extant-selection',
+        name: x.name,
+        optionKey: x.key,
       }
+      return selection
+    }
+    case 'repeating-extant-option': {
+      const selection: RepeatingExtantSelection = {
+        // TODO: Consider identifying which ones should be automatically
+        // added.
+        children: [],
+        id: v4(),
+        kind: 'repeating-extant-selection',
+        name: x.name,
+        optionKey: x.key,
+      }
+      return selection
+    }
   }
 }
 
@@ -589,7 +634,10 @@ of %n.',
  * JavaScript doesn't have a printf or equivalent, even though console.log
  * supports the syntax.
  */
-export const format = (options: ReadonlyArray<AppOption>, m: string, vars: ReadonlyArray<{}>): string => {
+export const format = (
+  options: ReadonlyArray<AppOption>, m: string,
+  vars: ReadonlyArray<{}>,
+): string => {
   return vars.reduce<string>((acc: string, v: {}) => {
     return acc.replace(/([^%])%([snx])/, (_m: string, pre: string, type: string) => {
       // Add back in the first match. The not-match for % (to rule out %%)
@@ -603,4 +651,101 @@ export const format = (options: ReadonlyArray<AppOption>, m: string, vars: Reado
       )
     })
   }, m)
+}
+
+export const optionFromSelection = (
+  options: ReadonlyArray<AppOption>,
+  selection: AppSelection,
+): Option<AppOption> => {
+  return intoOption(options.find(o => o.key == selection.optionKey))
+}
+/**
+ * Recurisvely grabs tags from selections that are identified via a "variable"
+ * selection. Some selection is indicated via a variable (the variable is the
+ * optionKey of the selection). That selection contains tags (dynamically) due
+ * to whatever dynamic nature the selection has.
+ *
+ * For exclusive selections, use the selected property, and recurse into any
+ * children that belong to that selected child.
+ */
+export const tagsFromVariable = (
+  options: ReadonlyArray<AppOption>,
+  selection: AppSelection,
+): ReadonlyArray<string> => {
+  switch (selection.kind) {
+    case 'exclusive-selection': {
+      const child = selection.children.find(c => c.optionKey == selection.selected)
+      return [
+        selection.selected,
+        ...(child == null ? [] : tagsFromVariable(options,child)),
+      ]
+    }
+    default: {
+      return optionFromSelection(options, selection)
+        .match({
+          some: o => o.tags,
+          none: () => [],
+        })
+    }
+  }
+}
+
+type PooledOptions = {
+  options: ReadonlyArray<AppOption>,
+  selections: ReadonlyArray<AppSelection>
+}
+
+export const optionsAvailable = (
+  options: ReadonlyArray<AppOption>,
+  scopedSelections: ReadonlyArray<AppSelection>,
+  option: PooledRepeatingExtantOption,
+): PooledOptions => {
+  const variableTags = chain(
+    tagsFromVariable.bind(null, options),
+    scopedSelections.filter(s => option.queryVariables.includes(s.optionKey)),
+  )
+  console.log('variableTags', variableTags)
+  const tagged = options.filter(o => {
+    return o.tags.some(t => {
+      return option.queryTags.includes(t)
+        || variableTags.includes(t)
+    })
+  })
+  const selections = scopedSelections
+    .filter(s => {
+      optionFromSelection(options, s)
+        .map(o => o.tags.some(t => {
+          return option.queryTags.includes(t)
+            || variableTags.includes(t)
+        }))
+      return option != null && option.tags
+    })
+  return {
+    options: tagged,
+    selections: selections,
+  }
+}
+
+export const flatSelections = (
+  s: AppSelection | null | undefined,
+): ReadonlyArray<AppSelection> => {
+  return s == null
+    ? []
+    : [s, ...chain(flatSelections, s.children) ]
+}
+
+export const cloneSelection = (
+  selection: AppSelection,
+): AppSelection => {
+  return {
+    ...selection,
+    children: selection.children.map(cloneSelection),
+    id: v4(),
+  }
+}
+
+export const selectableKey = (x: Selectable): string => {
+  return isOptionFromSelectable(x)
+    ? x.key
+    : x.optionKey
 }

@@ -1,33 +1,153 @@
 // Store data here for now.
 import { noneOption } from './data-generic'
 import {
+  type AppOption,
   type ExclusiveOption,
   type ExtantOption,
-  type AppOption,
+  type PooledRepeatingExtantOption,
+  type PoolScopeOption,
   type RepeatingExtantOption,
 } from './model'
 
 import {
-  detachmentsOption as spaceElfDetachmentsOption,
   factionPoolOption as spaceElfFactionPoolOption,
   options as spaceElfOptions,
 } from './data-space-elves'
+import {
+  options as smirkOptions,
+} from './data-smirks'
 
-export const factionDetachmentsOption: RepeatingExtantOption = {
+export const eliteBattlefieldRole: PooledRepeatingExtantOption = {
+  autoAdd: true,
+  name: 'Elites',
+  key: 'elite-battlefield-role',
+  kind: 'pooled-repeating-extant-option',
+  children: [],
+  queryTags: ['elite'],
+  queryVariables: ['faction'],
+  tags: [],
+}
+
+export const patrolDetachmentOption: ExtantOption = {
   autoAdd: true,
   children: [
-    spaceElfDetachmentsOption,
+    eliteBattlefieldRole,
   ],
-  name: 'Faction Detatchments',
-  key: 'faction-detachments',
+  name: 'Patrol Detachment',
+  key: 'patrol-detachment',
+  kind: 'extant-option',
+  removable: false,
+  tags: [],
+}
+
+export const battalionDetachmentOption: ExtantOption = {
+  autoAdd: false,
+  children: [
+    eliteBattlefieldRole,
+  ],
+  key: 'battalion-detachment',
+  kind: 'extant-option',
+  name: 'Battalion Detachment',
+  removable: false,
+  tags: [],
+}
+
+export const detachmentsOption: RepeatingExtantOption = {
+  autoAdd: true,
+  children: [
+    battalionDetachmentOption,
+    patrolDetachmentOption,
+  ],
+  key: 'detachments',
   kind: 'repeating-extant-option',
+  name: 'Detatchments',
+  tags: [],
+}
+
+export const hedonistSpaceElvesFactionOption: ExtantOption = {
+  autoAdd: false,
+  children: [],
+  key: 'hedonist-space-elves-sub-faction',
+  kind: 'extant-option',
+  name: 'Hedonist Space Elves',
+  tags: [],
+  removable: false,
+}
+
+export const thespianSpaceElvesFactionOption: ExtantOption = {
+  autoAdd: false,
+  children: [],
+  key: 'thespian-space-elves-sub-faction',
+  kind: 'extant-option',
+  name: 'Uptight Space Elves',
+  tags: [],
+  removable: false,
+}
+
+export const uptightSpaceElvesFactionOption: ExtantOption = {
+  autoAdd: false,
+  children: [],
+  key: 'uptight-space-elves-sub-faction',
+  kind: 'extant-option',
+  name: 'Uptight Space Elves',
+  tags: [],
+  removable: false,
+}
+
+export const spaceElvesSubFactionOption: ExclusiveOption = {
+  autoAdd: false,
+  children: [
+    hedonistSpaceElvesFactionOption,
+    uptightSpaceElvesFactionOption,
+    thespianSpaceElvesFactionOption,
+  ],
+  default: '',
+  key: 'space-elves-sub-faction',
+  kind: 'exclusive-option',
+  name: 'Space Elves',
+  tags: [],
+}
+
+export const spaceElvesFactionOption: ExtantOption = {
+  autoAdd: false,
+  children: [
+    spaceElvesSubFactionOption,
+  ],
+  key: 'space-elves-faction',
+  kind: 'extant-option',
+  name: 'Space Elves',
+  removable: false,
+  tags: [],
+}
+
+export const unboundFactionOption: ExtantOption = {
+  autoAdd: false,
+  children: [],
+  key: 'unbound-faction',
+  kind: 'extant-option',
+  name: 'Unbound',
+  removable: false,
+  tags: [],
+}
+
+export const factionOption: ExclusiveOption = {
+  autoAdd: true,
+  children: [
+    spaceElvesFactionOption,
+    unboundFactionOption,
+  ],
+  default: 'unbound-faction',
+  key: 'faction',
+  kind: 'exclusive-option',
+  name: 'Faction',
   tags: [],
 }
 
 export const rosterOpenPlayOption: ExtantOption = {
   autoAdd: false,
   children: [
-    factionDetachmentsOption,
+    detachmentsOption,
+    factionOption,
   ],
   name: 'Open Play Army Roster',
   key: 'roster-open-play',
@@ -39,7 +159,8 @@ export const rosterOpenPlayOption: ExtantOption = {
 export const rosterMatchedPlayOption: ExtantOption = {
   autoAdd: false,
   children: [
-    factionDetachmentsOption,
+    detachmentsOption,
+    factionOption,
   ],
   name: 'Matched Play Army Roster',
   key: 'roster-matched-play',
@@ -51,23 +172,13 @@ export const rosterMatchedPlayOption: ExtantOption = {
 export const rosterNarrativePlayOption: ExtantOption = {
   autoAdd: false,
   children: [
-    factionDetachmentsOption,
+    detachmentsOption,
+    factionOption,
   ],
   name: 'Narrative Play Army Roster',
   key: 'roster-narrative-play',
   kind: 'extant-option',
   removable: false,
-  tags: [],
-}
-
-export const orderOfBattleOption: RepeatingExtantOption = {
-  autoAdd: true,
-  children: [
-    spaceElfFactionPoolOption,
-  ],
-  key: 'order-of-battle',
-  kind: 'repeating-extant-option',
-  name: 'Order of Battle',
   tags: [],
 }
 
@@ -82,11 +193,35 @@ export const multiRosterNarrativeOption: RepeatingExtantOption = {
   tags: [],
 }
 
+export const orderOfBattleOption: PooledRepeatingExtantOption = {
+  autoAdd: true,
+  children: [],
+  key: 'order-of-battle',
+  kind: 'pooled-repeating-extant-option',
+  name: 'Order of Battle',
+  queryTags: [],
+  queryVariables: ['faction'],
+  tags: [],
+}
+
+export const orderOfBattlePoolScopeOption: PoolScopeOption = {
+  autoAdd: true,
+  children: [
+    multiRosterNarrativeOption,
+  ],
+  key: 'order-of-battle-pool-scope-option',
+  kind: 'pool-scope-option',
+  name: 'Order of Battle Pool Scope',
+  tags: [],
+  poolVariable: 'faction',
+}
+
 export const crusadeForceOption: ExtantOption = {
   autoAdd: false,
   children: [
     orderOfBattleOption,
-    multiRosterNarrativeOption,
+    orderOfBattlePoolScopeOption,
+    factionOption,
   ],
   key: 'crusade-force',
   kind: 'extant-option',
@@ -115,7 +250,13 @@ export const forceOption: ExclusiveOption = {
 // just break it into an assignment and concat it later.
 const localOptions: ReadonlyArray<AppOption> = [
   crusadeForceOption,
-  factionDetachmentsOption,
+  detachmentsOption,
+  uptightSpaceElvesFactionOption,
+  hedonistSpaceElvesFactionOption,
+  thespianSpaceElvesFactionOption,
+  spaceElvesSubFactionOption,
+  spaceElvesFactionOption,
+  factionOption,
   forceOption,
   multiRosterNarrativeOption,
   noneOption,
@@ -123,5 +264,13 @@ const localOptions: ReadonlyArray<AppOption> = [
   rosterMatchedPlayOption,
   rosterNarrativePlayOption,
   rosterOpenPlayOption,
+  unboundFactionOption,
+  battalionDetachmentOption,
+  patrolDetachmentOption,
+  detachmentsOption,
+  eliteBattlefieldRole,
+  orderOfBattlePoolScopeOption,
 ]
-export const options = localOptions.concat(spaceElfOptions)
+export const options = localOptions
+  .concat(smirkOptions)
+  .concat(spaceElfOptions)

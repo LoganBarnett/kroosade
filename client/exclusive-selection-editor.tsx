@@ -1,5 +1,9 @@
 import React, { useContext, type FC, type ReactElement } from 'react'
-import { isOption, type ExclusiveSelection, type AppOption } from './model'
+import {
+  type AppOption,
+  type ExclusiveSelection,
+  isOptionFromEntity,
+} from './model'
 import { optionForSelection } from './utils'
 import { Context } from './reducer-provider'
 import { selectionChangeExclusiveAction } from './actions'
@@ -32,7 +36,7 @@ Aborting selection. Review data for inconsistent  key names for \
     const option = optionForSelection(props.options, props.selection)
     if(option != null) {
       return <fieldset className={className}>
-        {option.children.filter(isOption).map(child => {
+        {option.children.filter(isOptionFromEntity).map(child => {
           return <div key={child.key} data-id={child.key}>
             <input
               checked={props.selection.selected == child.key}

@@ -14,6 +14,8 @@ import { default as booleanSelectionEditorFn } from './boolean-selection-editor'
 import { default as exclusiveSelectionEditorFn } from './exclusive-selection-editor'
 import { default as extantSelectionEditorFn } from './extant-selection-editor'
 import { default as numericSelectionEditorFn } from './numeric-selection-editor'
+import { default as poolSelectionEditorFn } from './pool-selection-editor'
+import { default as pooledRepeatingExtantSelectionEditorFn } from './pooled-repeating-extant-selection-editor'
 import { default as repeatingExtantSelectionEditorFn } from './repeating-extant-selection-editor'
 import { default as selectionDetailsFn } from './selection-details'
 import { default as selectionEditorFn } from './selection-editor'
@@ -53,11 +55,22 @@ const RepeatingExtantSelectionEditor = repeatingExtantSelectionEditorFn(
   VisibleRender,
   ExtantSelectionEditor,
 )
+const PoolSelectionEditor = poolSelectionEditorFn()
+const PooledRepeatingExtantSelectionEditor =
+  pooledRepeatingExtantSelectionEditorFn(
+    'repeating-extant-selection',
+    AddButton,
+    DeleteButton,
+    VisibleRender,
+    ExtantSelectionEditor,
+  )
 const SelectionEditor = selectionEditorFn(
   BooleanSelectionEditor,
   ExclusiveSelectionEditor,
   ExtantSelectionEditor,
   NumericSelectionEditor,
+  PoolSelectionEditor,
+  PooledRepeatingExtantSelectionEditor,
   RepeatingExtantSelectionEditor,
 )
 const SelectionDetails = selectionDetailsFn(
@@ -103,11 +116,15 @@ export default (): FC<Props> => {
         </section>
         <section>
           <h2>Selection</h2>
-          <SelectionDetails
-            options={options}
-            parent={null}
-            selection={state.focus}
-          />
+          {state.focus != null
+            ? <SelectionDetails
+              options={options}
+              parent={null}
+              scopedOptions={[]}
+              selection={state.focus}
+            />
+            : <>Nothing focused</>
+            }
         </section>
         <section>
           <h2>Info</h2>

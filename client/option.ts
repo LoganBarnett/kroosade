@@ -1,12 +1,18 @@
 
 export class UnsafeUnwrapError extends Error {}
 
+export type OptionPattern<A extends {}, R> = {
+  none: () => R
+  some: (a: A) => R,
+}
+
 export type Option<A extends {}> = {
   andThen: <B extends {}>(f: (a: A) => Option<B>) => Option<B>,
   intoNullable: () => A | null | undefined,
   inspect: (f: (a: A) => undefined | null | void) => Option<A>,
   isSome: () => boolean,
   map: <B extends {}>(f: (a: A) => B) => Option<B>,
+  match: <R>(pattern: OptionPattern<A, R>) => R,
   orElse: (f: () => Option<A>) => Option<A>,
   unwrap: () => A,
   unwrapOr: (b: A) => A,
@@ -23,6 +29,9 @@ export const none: Option<any> = {
   isSome: () => false,
   map: <B extends {}>(_f: (a: any) => B): Option<B> => {
     return none
+  },
+  match: <R>(pattern: OptionPattern<any, R>): R => {
+    return pattern.none()
   },
   orElse: <A extends {}>(f: () => Option<A>): Option<A> => {
     return f()
@@ -51,6 +60,9 @@ export const some = <A extends {}>(data: A): Option<A> => {
     isSome: () => true,
     map: <B extends {}>(f: (a: A) => B): Option<B> => {
       return some(f(data))
+    },
+    match: <R>(pattern: OptionPattern<A, R>): R => {
+      return pattern.some(data)
     },
     orElse: (_f: () => Option<A>): Option<A> => {
       return self

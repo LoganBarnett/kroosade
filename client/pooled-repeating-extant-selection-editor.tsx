@@ -18,10 +18,18 @@ import {
 } from './extant-selection-editor'
 import {
   type AppOption,
+  type AppSelection,
   type PooledRepeatingExtantSelection,
+  type PooledRepeatingExtantOption,
+  type Selectable,
+  flatSelections,
   isExtantSelection,
-  isOption,
+  isOptionFromSelectable,
+  optionsAvailable,
   optionToSelection,
+  optionFromSelection,
+  cloneSelection,
+  selectableKey,
 } from './model'
 import { Context } from './reducer-provider'
 import { optionForSelection, selectionTitle } from './utils'
@@ -29,6 +37,7 @@ import { type Component as VisibleComponent } from './visible'
 
 export type Props = {
   options: ReadonlyArray<AppOption>,
+  scopedOptions: ReadonlyArray<AppSelection>,
   selection: PooledRepeatingExtantSelection,
 }
 
@@ -36,45 +45,57 @@ export type Component = FC<Props>
 
 type State = {
   adding: boolean,
-  newOptionCandidate: AppOption | null | undefined,
+  newCandidate: Selectable | null | undefined,
 }
 
-const defaultState = (option: AppOption): State => {
+const defaultState = (
+  options: ReadonlyArray<AppOption>,
+  scopedOptions: ReadonlyArray<AppSelection>,
+  option: PooledRepeatingExtantOption,
+): State => {
+  const available = optionsAvailable(options, scopedOptions, option)
   return {
     adding: false,
-    newOptionCandidate: option.children.filter(isOption)[0],
+    newCandidate: available.selections[0] || available.options[0],
   }
 }
 
 const setNewOptionCandidate = (
-  setState: (x: State) => void,
-  state: State,
-  option: AppOption,
+  setSelectState: (x: State) => void,
+  selectState: State,
+  options: ReadonlyArray<AppOption>,
+  selections: ReadonlyArray<AppSelection>,
   e: React.ChangeEvent<HTMLSelectElement>,
 ): void => {
-  console.log('setting new option to', e.target.value, option.children
-      .filter(isOption)
-      .find(o => o.key == e.target.value))
-  setState({
-    ...state,
-    newOptionCandidate: option.children
-      .filter(isOption)
-      .find(o => o.key == e.target.value),
+  const newCandidate = e.target.value.startsWith('option-')
+    ? options.find(o => o.key == e.target.value.replace('option-', ''))
+    : selections.find(s => s.id == e.target.value.replace('selection-', ''))
+  setSelectState({
+    ...selectState,
+    newCandidate: newCandidate,
   })
+}
+
+const selectionFromSelectable = (
+  selectable: Selectable,
+): AppSelection => {
+  return isOptionFromSelectable(selectable)
+    ? optionToSelection(selectable)
+    : cloneSelection(selectable)
 }
 
 const addSelection = (
   selection: PooledRepeatingExtantSelection,
-  setState: (x: State) => void,
+  setSelectState: (x: State) => void,
   dispatch: React.Dispatch<AppAction>,
-  toAdd: AppOption,
+  toAdd: Selectable,
   e: MouseEvent<HTMLButtonElement>,
 ): void => {
   e.preventDefault()
-  dispatch(selectionAddChildrenAction(selection, optionToSelection(toAdd)))
-  setState({
+  dispatch(selectionAddChildrenAction(selection, selectionFromSelectable(toAdd)))
+  setSelectState({
     adding: false,
-    newOptionCandidate: toAdd,
+    newCandidate: toAdd,
   })
 }
 
@@ -86,13 +107,19 @@ export default (
   ExtantSelectionEditor: ExtantSelectionEditorComponent,
 ): FC<Props> => {
   const component = (props: Props): ReactElement => {
-    const { dispatch } = useContext(Context)
+    const { state, dispatch } = useContext(Context)
     const option = optionForSelection(props.options, props.selection)
     if(option != null && option.kind == 'pooled-repeating-extant-option') {
-      const [state, setState] = useState(Object.assign(
+      const [selectState, setSelectState] = useState(Object.assign(
         {},
-        defaultState(option),
+        defaultState(props.options, props.scopedOptions, option),
       ))
+      const availableOptions = optionsAvailable(
+        props.options,
+        flatSelections(state.roster),
+        option,
+      )
+      console.log('available options', availableOptions)
       return <fieldset className={className}>
         <ol>
           {props.selection.children
@@ -113,15 +140,27 @@ export default (
             })
           }
         </ol>
-        <Visible visible={!state.adding}>
-          <AddButton onClick={() => setState({...state, adding: true})}>
+        <Visible visible={!selectState.adding}>
+          <AddButton
+            onClick={() => setSelectState({...selectState, adding: true})}
+          >
             add {selectionTitle(props.options, props.selection)}
           </AddButton>
         </Visible>
-        <Visible visible={state.adding}>
+        <Visible visible={selectState.adding}>
           <select
-            onChange={setNewOptionCandidate.bind(null, setState, state, option)}
-            value={state.newOptionCandidate?.key}
+            onChange={setNewOptionCandidate.bind(
+              null,
+              setSelectState,
+              selectState,
+              props.options,
+              props.scopedOptions,
+            )}
+            value={
+              selectState.newCandidate != null
+                ? selectableKey(selectState.newCandidate)
+                : undefined
+            }
           >
         {/*
           * We can't actually search through all options, but this helps us
@@ -130,22 +169,37 @@ export default (
           * To call this complete, it needs to search through a particular pool.
           * Which pool? We need some means of indication.
           */}
-            {props.options
-              .filter(o => o.tags.some(t => option.query.includes(t)))
-              .map(o => <option key={o.key} value={o.key}>{o.name}</option>)
+            {availableOptions
+              .options
+              .map(o => {
+                return <option key={'option-' + o.key} value={'option-' + o.key}>
+                  {o.name}
+                </option>
+              })
+            }
+            {availableOptions
+              .selections
+              .map(s => {
+                return <option
+                  key={'selection-' + s.id}
+                  value={'selection-' + s.id}
+                >
+                  {s.name}
+                </option>
+              })
             }
           </select>
-          {state.newOptionCandidate != null
+          {selectState.newCandidate != null
             ? <AddButton
               onClick={addSelection.bind(
                 null,
                 props.selection,
-                setState,
+                setSelectState,
                 dispatch,
-                state.newOptionCandidate,
+                selectState.newCandidate,
               )}
             >
-              add {state.newOptionCandidate.name}
+              add {selectState.newCandidate.name}
             </AddButton>
             : <>Data incomplete. No candidates found in '{option?.name}'</>
           }
