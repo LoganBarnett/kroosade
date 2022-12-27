@@ -1,4 +1,4 @@
-import { add, chain } from 'ramda'
+import { add, always, chain } from 'ramda'
 import { v4 } from 'uuid'
 import { findInNumericRange } from './utils'
 import { intoOption, type Option } from './option'
@@ -705,20 +705,20 @@ export const optionsAvailable = (
     scopedSelections.filter(s => option.queryVariables.includes(s.optionKey)),
   )
   console.log('variableTags', variableTags)
+  const searchTags = variableTags.concat(option.queryTags)
   const tagged = options.filter(o => {
-    return o.tags.some(t => {
-      return option.queryTags.includes(t)
-        || variableTags.includes(t)
-    })
+    return searchTags.every(t => o.tags.includes(t))
   })
   const selections = scopedSelections
     .filter(s => {
-      optionFromSelection(options, s)
-        .map(o => o.tags.some(t => {
-          return option.queryTags.includes(t)
-            || variableTags.includes(t)
-        }))
-      return option != null && option.tags
+      return optionFromSelection(options, s)
+        .map(o => {
+          return searchTags.every(t => o.tags.includes(t))
+        })
+        .match({
+          some: (bool) => bool,
+          none: always(false),
+        })
     })
   return {
     options: tagged,

@@ -199,7 +199,7 @@ export const orderOfBattleOption: PooledRepeatingExtantOption = {
   key: 'order-of-battle',
   kind: 'pooled-repeating-extant-option',
   name: 'Order of Battle',
-  queryTags: [],
+  queryTags: ['unit'],
   queryVariables: ['faction'],
   tags: [],
 }

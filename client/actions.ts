@@ -1,9 +1,15 @@
 import {
   type AppOption,
   type AppSelection,
-  type ExclusiveSelection,
   type NumericSelection,
+  type Selectable,
 } from "./model"
+
+export type CandidateSelectAction = {
+  key: string,
+  selectable: Selectable,
+  type: 'candidate-select',
+}
 
 export type SelectionFocusAction = {
   selection: AppSelection,
@@ -17,9 +23,15 @@ export type SelectionAddChildAction = {
 }
 
 export type SelectionChangeExclusiveAction = {
-  selection: ExclusiveSelection,
-  selected: AppOption,
+  option: AppOption,
+  selectable: Selectable,
   type: 'selection-change-exclusive',
+}
+
+export type SelectionChangeExclusiveAddingModeAction = {
+  adding: boolean,
+  selectableKey: string,
+  type: 'selection-change-exclusive-adding-mode',
 }
 
 export type SelectionChangeNumberAction = {
@@ -46,14 +58,29 @@ export type SelectionCreateRosterAction  = {
 }
 
 export type AppAction =
+  | CandidateSelectAction
   | SelectionAddChildAction
   | SelectionChangeExclusiveAction
+  | SelectionChangeExclusiveAddingModeAction
   | SelectionChangeNumberAction
   | SelectionChangeNameAction
   | SelectionCreateRosterAction
   | SelectionFocusAction
   | SelectionRemoveChildAction
 
+/**
+ * Select a candidate to perform an action upon.
+ */
+export const candidateSelectAction = (
+  key: string,
+  selectable: Selectable,
+): CandidateSelectAction => {
+  return {
+    key,
+    selectable,
+    type: 'candidate-select',
+  }
+}
 /**
  * Add a child to the selection.
  */
@@ -69,13 +96,24 @@ export const selectionAddChildrenAction = (
 }
 
 export const selectionChangeExclusiveAction = (
-  selection: ExclusiveSelection,
-  selected: AppOption,
+  selectable: Selectable,
+  option: AppOption,
 ): SelectionChangeExclusiveAction => {
   return {
-    selection,
+    option,
+    selectable,
     type: 'selection-change-exclusive',
-    selected,
+  }
+}
+
+export const selectionChangeExclusiveAddingModeAction = (
+  selectableKey: string,
+  adding: boolean,
+): SelectionChangeExclusiveAddingModeAction => {
+  return {
+    adding,
+    selectableKey,
+    type: 'selection-change-exclusive-adding-mode',
   }
 }
 

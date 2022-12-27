@@ -1,22 +1,26 @@
 import {
   optionToSelection,
   type AppSelection,
-  type ExclusiveSelection,
-  type NumericSelection,
+  type Selectable,
 } from './model'
-import { append, equals, find, prop, remove, update } from 'ramda'
+import { append, prop, remove, update } from 'ramda'
 import { deepModify, findByPath, pathTo } from './utils'
-import Result from './result'
 import Option, { type Option as OptionType } from './option'
 import { type AppAction } from './actions'
 
+export type ExclusiveSelectionState = {
+  candidate: Selectable | null | undefined,
+  adding: boolean,
+}
+
 export type AppState = {
+  exclusiveSelections: {[key: string]: ExclusiveSelectionState },
   roster: AppSelection | null | undefined,
   focus: AppSelection | null | undefined,
 }
 
 export const initialState = (): AppState => {
-  return { roster: null, focus: null }
+  return { exclusiveSelections: {}, roster: null, focus: null }
 }
 
 export const selectionAddChildReducer = (
@@ -176,8 +180,17 @@ export const logReducer = (
 const appReducer = (state: AppState, action: AppAction): AppState => {
   console.log('action', action)
   switch(action.type) {
+    case 'candidate-select':
+      return {
+        ...state,
+        exclusiveSelections: {
+          ...state.exclusiveSelections,
+          [action.key]: action.selectable,
+        }
+      }
     case 'selection-create-roster':
       return {
+        ...state,
         focus: action.roster,
         roster: action.roster,
       }

@@ -167,7 +167,7 @@ export const stingingElvesUnitOption: ExtantOption = {
   ],
   key: 'stinging-elves-unit',
   removable: false,
-  tags: ['space-elves-faction', 'elite'],
+  tags: ['space-elves-faction', 'elite', 'unit'],
 }
 
 export const spartanLeafHurlerOption: ExtantOption = {
@@ -356,7 +356,7 @@ export const spartanElvesUnitOption: ExtantOption = {
   kind: 'extant-option',
   name: 'Spartan Elves',
   removable: true,
-  tags: ['space-elves-faction', 'elite'],
+  tags: ['space-elves-faction', 'elite', 'unit'],
 }
 
 export const factionPoolOption: PoolOption = {

@@ -18,7 +18,11 @@ type Props = {
 }
 
 export const Reduced = (props: Props): ReactElement => {
-  const [state, dispatch] = useReducer(appReducer, { roster: null, focus: null })
+  const [state, dispatch] = useReducer(appReducer, {
+    candidates: {},
+    focus: null,
+    roster: null,
+  })
   const contextValue = useMemo(() => ({ state, dispatch }), [state, dispatch])
   return <Context.Provider value={contextValue}>
     {props.children}
