@@ -24,7 +24,7 @@ export const smirkousMaximusOption: ExtantOption = {
   key: 'smirkous-maximus',
   kind: 'extant-option',
   removable: true,
-  tags: ['smirks', 'elite', 'unit'],
+  tags: ['smirks-faction', 'smirks', 'elite', 'unit'],
 }
 
 export const options: ReadonlyArray<AppOption> = [

@@ -130,9 +130,20 @@ export const unboundFactionOption: ExtantOption = {
   tags: [],
 }
 
+export const smirksFactionOption: ExtantOption = {
+  autoAdd: false,
+  children: [],
+  key: 'smirks-faction',
+  kind: 'extant-option',
+  name: 'Smirks - they shall know no smear',
+  tags: [],
+  removable: false,
+}
+
 export const factionOption: ExclusiveOption = {
   autoAdd: true,
   children: [
+    smirksFactionOption,
     spaceElvesFactionOption,
     unboundFactionOption,
   ],
@@ -254,6 +265,7 @@ const localOptions: ReadonlyArray<AppOption> = [
   uptightSpaceElvesFactionOption,
   hedonistSpaceElvesFactionOption,
   thespianSpaceElvesFactionOption,
+  smirksFactionOption,
   spaceElvesSubFactionOption,
   spaceElvesFactionOption,
   factionOption,
