@@ -12,6 +12,12 @@ export type CandidateSelectAction = {
   type: 'candidate-select',
 }
 
+export type CandidateSelectModeAction = {
+  adding: boolean,
+  key: string,
+  type: 'candidate-select-mode',
+}
+
 export type SelectionFocusAction = {
   selection: AppSelection,
   type: 'selection-focus',
@@ -27,18 +33,6 @@ export type SelectionChangeExclusiveAction = {
   selected: AppOption,
   selection: ExclusiveSelection,
   type: 'selection-change-exclusive',
-}
-
-export type SelectionChangeRepeatingCandidateAction = {
-  candidate: Selectable,
-  selectionId: string,
-  type: 'selection-change-repeating-candidate',
-}
-
-export type SelectionChangeRepeatingCandidateAddingModeAction = {
-  adding: boolean,
-  selectableKey: string,
-  type: 'selection-change-repeating-candidate-adding-mode',
 }
 
 export type SelectionChangeNumberAction = {
@@ -66,12 +60,11 @@ export type SelectionCreateRosterAction  = {
 
 export type AppAction =
   | CandidateSelectAction
+  | CandidateSelectModeAction
   | SelectionAddChildAction
   | SelectionChangeExclusiveAction
   | SelectionChangeNumberAction
   | SelectionChangeNameAction
-  | SelectionChangeRepeatingCandidateAddingModeAction
-  | SelectionChangeRepeatingCandidateAction
   | SelectionCreateRosterAction
   | SelectionFocusAction
   | SelectionRemoveChildAction
@@ -89,6 +82,22 @@ export const candidateSelectAction = (
     type: 'candidate-select',
   }
 }
+
+/**
+ * Switch the candidate selection on or off in the UI.
+ */
+export const candidateSelectModeAction = (
+  key: string,
+  adding: boolean,
+): CandidateSelectModeAction => {
+  return {
+    adding,
+    key,
+    type: 'candidate-select-mode',
+  }
+}
+
+
 /**
  * Add a child to the selection.
  */
@@ -111,28 +120,6 @@ export const selectionChangeExclusiveAction = (
     selected,
     selection,
     type: 'selection-change-exclusive',
-  }
-}
-
-export const selectionChangeRepeatingCandidateAddingModeAction = (
-  selectableKey: string,
-  adding: boolean,
-): SelectionChangeRepeatingCandidateAddingModeAction => {
-  return {
-    adding,
-    selectableKey,
-    type: 'selection-change-repeating-candidate-adding-mode',
-  }
-}
-
-export const selectionChangeRepeatingCandidateAction = (
-  candidate: Selectable,
-  selectionId: string,
-): SelectionChangeRepeatingCandidateAction => {
-  return {
-    candidate,
-    selectionId,
-    type: 'selection-change-repeating-candidate',
   }
 }
 

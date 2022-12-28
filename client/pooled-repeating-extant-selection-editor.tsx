@@ -9,10 +9,10 @@ import React, {
 } from 'react'
 import {
   type AppAction,
+  candidateSelectAction,
+  candidateSelectModeAction,
   selectionAddChildrenAction,
   selectionRemoveChildAction,
-  selectionChangeRepeatingCandidateAddingModeAction,
-  selectionChangeRepeatingCandidateAction,
 } from './actions'
 import { RepeatingSelectionState } from './app-reducer'
 import { type Component as ButtonComponent } from './button'
@@ -71,7 +71,7 @@ const setNewOptionCandidate = (
     : selections.find(s => s.id == e.target.value.replace('selection-', ''))
   console.log('candidate', candidate)
   if(candidate != null) {
-    dispatch(selectionChangeRepeatingCandidateAction(candidate, selection.id))
+    dispatch(candidateSelectAction(selection.id, candidate))
   } else {
     console.error(
       `Error selecting candidate "${e.target.value}": Cannot be found with that key or ID.`,
@@ -97,7 +97,7 @@ const addSelection = (
   dispatch(selectionAddChildrenAction(selection, selectionFromSelectable(toAdd)))
   // TODO: This needs to be key or ID.
   dispatch(
-    selectionChangeRepeatingCandidateAddingModeAction(selection.id, false),
+    candidateSelectModeAction(selection.id, false),
   )
 }
 
@@ -144,7 +144,7 @@ export default (
         <Visible visible={!candidateState.adding}>
           <AddButton
             onClick={() => {
-              dispatch(selectionChangeRepeatingCandidateAddingModeAction(
+              dispatch(candidateSelectModeAction(
                 option.key, // TODO: Could be selectable ID too.
                 true,
               ))

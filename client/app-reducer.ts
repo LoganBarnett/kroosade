@@ -9,8 +9,8 @@ import Option, { type Option as OptionType } from './option'
 import { type AppAction } from './actions'
 
 export type RepeatingSelectionState = {
-  candidate: Selectable | null | undefined,
   adding: boolean,
+  candidate: Selectable | null | undefined,
 }
 
 export type AppState = {
@@ -188,6 +188,17 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
           [action.key]: {
             adding: true,
             candidate: action.selectable,
+          }
+        }
+      }
+    case 'candidate-select-mode':
+      return {
+        ...state,
+        repeatingCandidates: {
+          ...state.repeatingCandidates,
+          [action.key]: {
+            adding: action.adding,
+            candidate: state.repeatingCandidates[action.key]?.candidate,
           }
         }
       }
