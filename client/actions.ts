@@ -1,6 +1,7 @@
 import {
   type AppOption,
   type AppSelection,
+  type ExclusiveSelection,
   type NumericSelection,
   type Selectable,
 } from "./model"
@@ -23,15 +24,21 @@ export type SelectionAddChildAction = {
 }
 
 export type SelectionChangeExclusiveAction = {
-  option: AppOption,
-  selectable: Selectable,
+  selected: AppOption,
+  selection: ExclusiveSelection,
   type: 'selection-change-exclusive',
 }
 
-export type SelectionChangeExclusiveAddingModeAction = {
+export type SelectionChangeRepeatingCandidateAction = {
+  candidate: Selectable,
+  selectionId: string,
+  type: 'selection-change-repeating-candidate',
+}
+
+export type SelectionChangeRepeatingCandidateAddingModeAction = {
   adding: boolean,
   selectableKey: string,
-  type: 'selection-change-exclusive-adding-mode',
+  type: 'selection-change-repeating-candidate-adding-mode',
 }
 
 export type SelectionChangeNumberAction = {
@@ -61,9 +68,10 @@ export type AppAction =
   | CandidateSelectAction
   | SelectionAddChildAction
   | SelectionChangeExclusiveAction
-  | SelectionChangeExclusiveAddingModeAction
   | SelectionChangeNumberAction
   | SelectionChangeNameAction
+  | SelectionChangeRepeatingCandidateAddingModeAction
+  | SelectionChangeRepeatingCandidateAction
   | SelectionCreateRosterAction
   | SelectionFocusAction
   | SelectionRemoveChildAction
@@ -96,24 +104,35 @@ export const selectionAddChildrenAction = (
 }
 
 export const selectionChangeExclusiveAction = (
-  selectable: Selectable,
-  option: AppOption,
+  selection: ExclusiveSelection,
+  selected: AppOption,
 ): SelectionChangeExclusiveAction => {
   return {
-    option,
-    selectable,
+    selected,
+    selection,
     type: 'selection-change-exclusive',
   }
 }
 
-export const selectionChangeExclusiveAddingModeAction = (
+export const selectionChangeRepeatingCandidateAddingModeAction = (
   selectableKey: string,
   adding: boolean,
-): SelectionChangeExclusiveAddingModeAction => {
+): SelectionChangeRepeatingCandidateAddingModeAction => {
   return {
     adding,
     selectableKey,
-    type: 'selection-change-exclusive-adding-mode',
+    type: 'selection-change-repeating-candidate-adding-mode',
+  }
+}
+
+export const selectionChangeRepeatingCandidateAction = (
+  candidate: Selectable,
+  selectionId: string,
+): SelectionChangeRepeatingCandidateAction => {
+  return {
+    candidate,
+    selectionId,
+    type: 'selection-change-repeating-candidate',
   }
 }
 

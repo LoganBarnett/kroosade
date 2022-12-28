@@ -8,19 +8,19 @@ import { deepModify, findByPath, pathTo } from './utils'
 import Option, { type Option as OptionType } from './option'
 import { type AppAction } from './actions'
 
-export type ExclusiveSelectionState = {
+export type RepeatingSelectionState = {
   candidate: Selectable | null | undefined,
   adding: boolean,
 }
 
 export type AppState = {
-  exclusiveSelections: {[key: string]: ExclusiveSelectionState },
+  repeatingCandidates: {[key: string]: RepeatingSelectionState },
   roster: AppSelection | null | undefined,
   focus: AppSelection | null | undefined,
 }
 
 export const initialState = (): AppState => {
-  return { exclusiveSelections: {}, roster: null, focus: null }
+  return { repeatingCandidates: {}, roster: null, focus: null }
 }
 
 export const selectionAddChildReducer = (
@@ -183,9 +183,12 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
     case 'candidate-select':
       return {
         ...state,
-        exclusiveSelections: {
-          ...state.exclusiveSelections,
-          [action.key]: action.selectable,
+        repeatingCandidates: {
+          ...state.repeatingCandidates,
+          [action.key]: {
+            adding: true,
+            candidate: action.selectable,
+          }
         }
       }
     case 'selection-create-roster':

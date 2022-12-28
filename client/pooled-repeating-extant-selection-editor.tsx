@@ -11,10 +11,10 @@ import {
   type AppAction,
   selectionAddChildrenAction,
   selectionRemoveChildAction,
-  selectionChangeExclusiveAddingModeAction,
-  selectionChangeExclusiveAction,
+  selectionChangeRepeatingCandidateAddingModeAction,
+  selectionChangeRepeatingCandidateAction,
 } from './actions'
-import { ExclusiveSelectionState } from './app-reducer'
+import { RepeatingSelectionState } from './app-reducer'
 import { type Component as ButtonComponent } from './button'
 import {
   type Component as ExtantSelectionEditorComponent,
@@ -49,7 +49,7 @@ const defaultState = (
   options: ReadonlyArray<AppOption>,
   scopedOptions: ReadonlyArray<AppSelection>,
   option: PooledRepeatingExtantOption,
-): ExclusiveSelectionState => {
+): RepeatingSelectionState => {
   const available = optionsAvailable(options, scopedOptions, option)
   console.log('available (defaultState)', available)
   return {
@@ -60,7 +60,7 @@ const defaultState = (
 
 const setNewOptionCandidate = (
   dispatch: Dispatch<AppAction>,
-  option: AppOption,
+  selection: AppSelection,
   options: ReadonlyArray<AppOption>,
   selections: ReadonlyArray<AppSelection>,
   e: React.ChangeEvent<HTMLSelectElement>,
@@ -71,7 +71,7 @@ const setNewOptionCandidate = (
     : selections.find(s => s.id == e.target.value.replace('selection-', ''))
   console.log('candidate', candidate)
   if(candidate != null) {
-    dispatch(selectionChangeExclusiveAction(candidate, option))
+    dispatch(selectionChangeRepeatingCandidateAction(candidate, selection.id))
   } else {
     console.error(
       `Error selecting candidate "${e.target.value}": Cannot be found with that key or ID.`,
@@ -96,7 +96,9 @@ const addSelection = (
   e.preventDefault()
   dispatch(selectionAddChildrenAction(selection, selectionFromSelectable(toAdd)))
   // TODO: This needs to be key or ID.
-  dispatch(selectionChangeExclusiveAddingModeAction(selection.id, false))
+  dispatch(
+    selectionChangeRepeatingCandidateAddingModeAction(selection.id, false),
+  )
 }
 
 export default (
@@ -115,10 +117,10 @@ export default (
         flatSelections(state.roster),
         option,
       )
-      const exclusiveState = state.exclusiveSelections[option.key]
+      const candidateState = state.repeatingCandidates[option.key]
         || defaultState(props.options, props.scopedOptions, option)
       console.log('available options', availableOptions)
-      console.log('candidate', exclusiveState)
+      console.log('candidate', candidateState)
       return <fieldset className={className}>
         <ol>
           {props.selection.children
@@ -139,10 +141,10 @@ export default (
             })
           }
         </ol>
-        <Visible visible={!exclusiveState.adding}>
+        <Visible visible={!candidateState.adding}>
           <AddButton
             onClick={() => {
-              dispatch(selectionChangeExclusiveAddingModeAction(
+              dispatch(selectionChangeRepeatingCandidateAddingModeAction(
                 option.key, // TODO: Could be selectable ID too.
                 true,
               ))
@@ -151,18 +153,18 @@ export default (
             add {selectionTitle(props.options, props.selection)}
           </AddButton>
         </Visible>
-        <Visible visible={exclusiveState.adding}>
+        <Visible visible={candidateState.adding}>
           <select
             onChange={setNewOptionCandidate.bind(
               null,
               dispatch,
-              option,
+              props.selection,
               props.options,
               props.scopedOptions,
             )}
             value={
-              exclusiveState.candidate != null
-                ? selectableKey(exclusiveState.candidate)
+              candidateState.candidate != null
+                ? selectableKey(candidateState.candidate)
                 : undefined
             }
           >
@@ -196,16 +198,16 @@ export default (
               })
             }
           </select>
-          {exclusiveState.candidate != null
+          {candidateState.candidate != null
             ? <AddButton
               onClick={addSelection.bind(
                 null,
                 props.selection,
                 dispatch,
-                exclusiveState.candidate,
+                candidateState.candidate,
               )}
             >
-              add {exclusiveState.candidate.name}
+              add {candidateState.candidate.name}
             </AddButton>
             : <>Data incomplete. No candidates found in '{option?.name}'</>
           }

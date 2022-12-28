@@ -5,7 +5,11 @@ import React, {
   useMemo,
   useReducer,
 } from 'react'
-import {type AppState, reducer as appReducer } from './app-reducer'
+import {
+  type AppState,
+  initialState,
+  reducer as appReducer,
+} from './app-reducer'
 import {type AppAction } from './actions'
 
 export const Context = createContext({
@@ -18,11 +22,7 @@ type Props = {
 }
 
 export const Reduced = (props: Props): ReactElement => {
-  const [state, dispatch] = useReducer(appReducer, {
-    candidates: {},
-    focus: null,
-    roster: null,
-  })
+  const [state, dispatch] = useReducer(appReducer, initialState())
   const contextValue = useMemo(() => ({ state, dispatch }), [state, dispatch])
   return <Context.Provider value={contextValue}>
     {props.children}
