@@ -198,7 +198,7 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
           ...state.repeatingCandidates,
           [action.key]: {
             adding: action.adding,
-            candidate: state.repeatingCandidates[action.key]?.candidate,
+            candidate: action.candidate,
           }
         }
       }

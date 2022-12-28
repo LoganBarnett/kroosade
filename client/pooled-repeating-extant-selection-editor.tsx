@@ -24,6 +24,7 @@ import {
   type AppSelection,
   type PooledRepeatingExtantSelection,
   type PooledRepeatingExtantOption,
+  type PooledOptions,
   type Selectable,
   flatSelections,
   isExtantSelection,
@@ -31,7 +32,6 @@ import {
   optionsAvailable,
   optionToSelection,
   cloneSelection,
-  selectableKey,
 } from './model'
 import { Context } from './reducer-provider'
 import { optionForSelection, selectionTitle } from './utils'
@@ -46,16 +46,30 @@ export type Props = {
 export type Component = FC<Props>
 
 const defaultState = (
-  options: ReadonlyArray<AppOption>,
-  scopedOptions: ReadonlyArray<AppSelection>,
-  option: PooledRepeatingExtantOption,
+  state: RepeatingSelectionState | null | undefined,
+  available: PooledOptions,
 ): RepeatingSelectionState => {
-  const available = optionsAvailable(options, scopedOptions, option)
-  console.log('available (defaultState)', available)
-  return {
-    adding: false,
-    candidate: available.selections[0] || available.options[0],
+  console.log('default state...')
+  const defaultCandidate = available.selections[0] || available.options[0]
+  if(state != null) {
+    if(state.candidate == null) {
+      return {
+        ...state,
+        candidate: defaultCandidate,
+      }
+    } else {
+      return state
+    }
+  } else {
+    return {
+      adding: false,
+      candidate: defaultCandidate,
+    }
   }
+}
+
+const selectableKeyOptionTagValue = (s: Selectable) => {
+  return isOptionFromSelectable(s) ? 'option-' + s.key : 'selection-' + s.id
 }
 
 const setNewOptionCandidate = (
@@ -97,7 +111,7 @@ const addSelection = (
   dispatch(selectionAddChildrenAction(selection, selectionFromSelectable(toAdd)))
   // TODO: This needs to be key or ID.
   dispatch(
-    candidateSelectModeAction(selection.id, false),
+    candidateSelectModeAction(selection.id, null, false),
   )
 }
 
@@ -117,10 +131,16 @@ export default (
         flatSelections(state.roster),
         option,
       )
-      const candidateState = state.repeatingCandidates[option.key]
-        || defaultState(props.options, props.scopedOptions, option)
+      const candidateState = defaultState(
+        state.repeatingCandidates[props.selection.id],
+        availableOptions,
+      )
+      const candidateKey = candidateState.candidate != null
+        ? selectableKeyOptionTagValue(candidateState.candidate)
+        : undefined
       console.log('available options', availableOptions)
       console.log('candidate', candidateState)
+      console.log('candidateKey', candidateKey)
       return <fieldset className={className}>
         <ol>
           {props.selection.children
@@ -145,7 +165,8 @@ export default (
           <AddButton
             onClick={() => {
               dispatch(candidateSelectModeAction(
-                option.key, // TODO: Could be selectable ID too.
+                props.selection.id,
+                candidateState.candidate,
                 true,
               ))
             }}
@@ -162,11 +183,7 @@ export default (
               props.options,
               props.scopedOptions,
             )}
-            value={
-              candidateState.candidate != null
-                ? selectableKey(candidateState.candidate)
-                : undefined
-            }
+            value={candidateKey}
           >
         {/*
           * We can't actually search through all options, but this helps us

@@ -690,7 +690,7 @@ export const tagsFromVariable = (
   }
 }
 
-type PooledOptions = {
+export type PooledOptions = {
   options: ReadonlyArray<AppOption>,
   selections: ReadonlyArray<AppSelection>
 }
@@ -747,5 +747,5 @@ export const cloneSelection = (
 export const selectableKey = (x: Selectable): string => {
   return isOptionFromSelectable(x)
     ? x.key
-    : x.optionKey
+    : x.id
 }

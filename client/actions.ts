@@ -14,6 +14,9 @@ export type CandidateSelectAction = {
 
 export type CandidateSelectModeAction = {
   adding: boolean,
+  // We need the candidate here, or the defaulting logic gets messed up during
+  // mode change, and we lose our default candidate.
+  candidate: Selectable | null | undefined,
   key: string,
   type: 'candidate-select-mode',
 }
@@ -88,10 +91,12 @@ export const candidateSelectAction = (
  */
 export const candidateSelectModeAction = (
   key: string,
+  candidate: Selectable | null | undefined,
   adding: boolean,
 ): CandidateSelectModeAction => {
   return {
     adding,
+    candidate,
     key,
     type: 'candidate-select-mode',
   }
