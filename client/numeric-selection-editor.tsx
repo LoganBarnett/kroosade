@@ -1,12 +1,18 @@
 /**
  */
 
-import React, { useContext, type FC, type ReactElement } from 'react'
+import React, {
+  useContext,
+  type FC,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 import { selectionChangeNumberAction } from './actions'
 import { type NumericSelection, type AppOption } from './model'
 import { Context } from './reducer-provider'
 
 export type Props = {
+  children: ReactNode,
   options: ReadonlyArray<AppOption>,
   selection: NumericSelection,
 }

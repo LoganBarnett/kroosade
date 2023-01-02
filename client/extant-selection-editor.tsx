@@ -6,6 +6,7 @@
 import React, {
   type FC,
   type ReactElement,
+  type ReactNode,
   useContext,
 } from 'react'
 import {
@@ -26,6 +27,7 @@ import { isRemovableSelection, selectionTitle } from './utils'
 import visibilityFn from './visible'
 
 export type Props = {
+  children: ReactNode,
   options: ReadonlyArray<AppOption>,
   parent: AppSelection | null | undefined,
   selection: ExtantSelection,
@@ -77,6 +79,7 @@ export default (
           remove
         </RemoveButton>
         </Visibility>
+        {props.children}
       </fieldset>
     </Visibility>
   }

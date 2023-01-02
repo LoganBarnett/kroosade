@@ -53,7 +53,6 @@ const RepeatingExtantSelectionEditor = repeatingExtantSelectionEditorFn(
   AddButton,
   DeleteButton,
   VisibleRender,
-  ExtantSelectionEditor,
 )
 const PoolSelectionEditor = poolSelectionEditorFn()
 const PooledRepeatingExtantSelectionEditor =
@@ -62,7 +61,6 @@ const PooledRepeatingExtantSelectionEditor =
     AddButton,
     DeleteButton,
     VisibleRender,
-    ExtantSelectionEditor,
   )
 const SelectionEditor = selectionEditorFn(
   BooleanSelectionEditor,
@@ -101,35 +99,37 @@ export default (): FC<Props> => {
           <h1>Kroosade</h1>
         </hgroup>
       </header>
-      <article>
-        <h1>Roster</h1>
-        <section>
-          {state.roster != null
-            ? <Roster
-              focus={focusFn}
-              options={options}
-              roster={state.roster}
-            />
-            : <>No roster loaded.</>
-          }
-        <AddButton onClick={createRoster}> create roster </AddButton>
-        </section>
-        <section>
-          <h2>Selection</h2>
-          {state.focus != null
-            ? <SelectionDetails
-              options={options}
-              parent={null}
-              scopedOptions={[]}
-              selection={state.focus}
-            />
-            : <>Nothing focused</>
-            }
-        </section>
+        {state.roster != null
+          ?
+          <article>
+            <section>
+              <h1>Roster</h1>
+              <Roster
+                focus={focusFn}
+                options={options}
+                roster={state.roster}
+              />
+            </section>
+            <section>
+              <h2>Selection</h2>
+              {state.focus != null
+                ? <SelectionDetails
+                  options={options}
+                  parent={null}
+                  roster={state.roster}
+                  scopedSelections={[]}
+                  scopedOptions={[]}
+                  selection={state.focus}
+                />
+                : <>Nothing focused</>
+                }
+            </section>
         <section>
           <h2>Info</h2>
         </section>
       </article>
+      : <AddButton onClick={createRoster}> create roster </AddButton>
+  }
     </>
   }
   component.displayName = 'RosterView'

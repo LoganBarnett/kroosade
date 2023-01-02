@@ -366,7 +366,6 @@ export const factionPoolOption: PoolOption = {
     spartanElvesUnitOption,
     stingingElvesUnitOption,
   ],
-  from: null,
   infinite: true,
   key: 'space-elves-faction-pool',
   kind: 'pool-option',
@@ -377,7 +376,6 @@ export const factionPoolOption: PoolOption = {
 export const factionCrusadePoolOption: PoolOption = {
   autoAdd: true,
   children: [],
-  from: 'space-elves-faction-pool',
   infinite: true,
   key: 'space-elves-faction-crusade-pool',
   kind: 'pool-option',

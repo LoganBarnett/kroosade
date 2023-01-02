@@ -4,6 +4,7 @@ import React, {
   type FC,
   type MouseEvent,
   type ReactElement,
+  type ReactNode,
   useContext,
   useState,
 } from 'react'
@@ -14,10 +15,11 @@ import {
 } from './actions'
 import { type Component as ButtonComponent } from './button'
 import {
-  type Component as ExtantSelectionEditorComponent,
-} from './extant-selection-editor'
+  type Component as SelectionDetailsComponent,
+} from './selection-details'
 import {
   type AppOption,
+  type AppSelection,
   type RepeatingExtantSelection,
   isExtantSelection,
   isOptionFromEntity,
@@ -28,8 +30,15 @@ import { optionForSelection, selectionTitle } from './utils'
 import { type Component as VisibleComponent } from './visible'
 
 export type Props = {
+  // TODO: Unsure if this needs to be here.
+  children: ReactNode,
   options: ReadonlyArray<AppOption>,
+  parent: AppSelection | undefined | null,
+  roster: AppSelection,
+  scopedOptions: ReadonlyArray<AppOption>,
+  scopedSelections: ReadonlyArray<AppSelection>,
   selection: RepeatingExtantSelection,
+  selectionDetailsComponent: SelectionDetailsComponent,
 }
 
 export type Component = FC<Props>
@@ -83,11 +92,11 @@ export default (
   AddButton: ButtonComponent,
   DeleteButton: ButtonComponent,
   Visible: VisibleComponent,
-  ExtantSelectionEditor: ExtantSelectionEditorComponent,
 ): FC<Props> => {
   const component = (props: Props): ReactElement => {
     const { dispatch } = useContext(Context)
     const option = optionForSelection(props.options, props.selection)
+    const SelectionDetails = props.selectionDetailsComponent
     if(option != null) {
       const [state, setState] = useState(Object.assign(
         {},
@@ -104,9 +113,12 @@ export default (
                 }}>
                   remove {selectionTitle(props.options, x)}
                 </DeleteButton>
-                <ExtantSelectionEditor
+                <SelectionDetails
                   options={props.options}
+                  scopedOptions={props.scopedOptions}
                   parent={props.selection}
+                  scopedSelections={props.scopedSelections}
+                  roster={props.roster}
                   selection={x}
                 />
               </li>

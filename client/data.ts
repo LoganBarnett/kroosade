@@ -5,6 +5,7 @@ import {
   type ExclusiveOption,
   type ExtantOption,
   type PooledRepeatingExtantOption,
+  type PoolOption,
   type PoolScopeOption,
   type RepeatingExtantOption,
 } from './model'
@@ -154,6 +155,18 @@ export const factionOption: ExclusiveOption = {
   tags: [],
 }
 
+export const infinitePoolOption: PoolOption = {
+  autoAdd: true,
+  children: [
+    factionOption,
+  ],
+  infinite: true,
+  key: 'infinite-pool',
+  kind: 'pool-option',
+  name: 'Infinite Pool',
+  tags: [],
+}
+
 export const rosterOpenPlayOption: ExtantOption = {
   autoAdd: false,
   children: [
@@ -167,16 +180,16 @@ export const rosterOpenPlayOption: ExtantOption = {
   tags: [],
 }
 
-export const rosterMatchedPlayOption: ExtantOption = {
+export const rosterMatchedPlayOption: PoolScopeOption = {
   autoAdd: false,
   children: [
     detachmentsOption,
-    factionOption,
+    infinitePoolOption,
   ],
   name: 'Matched Play Army Roster',
   key: 'roster-matched-play',
-  kind: 'extant-option',
-  removable: false,
+  kind: 'pool-scope-option',
+  poolVariable: 'infinite-pool',
   tags: [],
 }
 
@@ -282,6 +295,7 @@ const localOptions: ReadonlyArray<AppOption> = [
   detachmentsOption,
   eliteBattlefieldRole,
   orderOfBattlePoolScopeOption,
+  infinitePoolOption,
 ]
 export const options = localOptions
   .concat(smirkOptions)

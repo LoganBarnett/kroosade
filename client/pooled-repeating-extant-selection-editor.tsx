@@ -4,6 +4,7 @@ import React, {
   type FC,
   type MouseEvent,
   type ReactElement,
+  type ReactNode,
   useContext,
   Dispatch,
 } from 'react'
@@ -17,8 +18,8 @@ import {
 import { RepeatingSelectionState } from './app-reducer'
 import { type Component as ButtonComponent } from './button'
 import {
-  type Component as ExtantSelectionEditorComponent,
-} from './extant-selection-editor'
+  type Component as SelectionDetailsComponent,
+} from './selection-details'
 import {
   type AppOption,
   type AppSelection,
@@ -38,9 +39,14 @@ import { optionForSelection, selectionTitle } from './utils'
 import { type Component as VisibleComponent } from './visible'
 
 export type Props = {
+  // TODO: Unsure if this needs to get used.
+  children: ReactNode,
   options: ReadonlyArray<AppOption>,
-  scopedOptions: ReadonlyArray<AppSelection>,
+  roster: AppSelection,
+  scopedSelections: ReadonlyArray<AppSelection>,
+  scopedOptions: ReadonlyArray<AppOption>,
   selection: PooledRepeatingExtantSelection,
+  selectionDetailsComponent: SelectionDetailsComponent,
 }
 
 export type Component = FC<Props>
@@ -120,15 +126,15 @@ export default (
   AddButton: ButtonComponent,
   DeleteButton: ButtonComponent,
   Visible: VisibleComponent,
-  ExtantSelectionEditor: ExtantSelectionEditorComponent,
 ): FC<Props> => {
   const component = (props: Props): ReactElement => {
+    const SelectionDetails = props.selectionDetailsComponent
     const { state, dispatch } = useContext(Context)
     const option = optionForSelection(props.options, props.selection)
     if(option != null && option.kind == 'pooled-repeating-extant-option') {
       const availableOptions = optionsAvailable(
         props.options,
-        flatSelections(state.roster),
+        props.scopedSelections,
         option,
       )
       const candidateState = defaultState(
@@ -152,9 +158,12 @@ export default (
                 }}>
                   remove {selectionTitle(props.options, x)}
                 </DeleteButton>
-                <ExtantSelectionEditor
+                <SelectionDetails
                   options={props.options}
                   parent={props.selection}
+                  roster={props.roster}
+                  scopedSelections={props.scopedSelections}
+                  scopedOptions={props.scopedOptions}
                   selection={x}
                 />
               </li>
@@ -181,7 +190,7 @@ export default (
               dispatch,
               props.selection,
               props.options,
-              props.scopedOptions,
+              props.scopedSelections,
             )}
             value={candidateKey}
           >

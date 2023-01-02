@@ -1,4 +1,9 @@
-import React, { useContext, type FC, type ReactElement } from 'react'
+import React, {
+  useContext,
+  type FC,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 import {
   type AppOption,
   type ExclusiveSelection,
@@ -9,6 +14,7 @@ import { Context } from './reducer-provider'
 import { selectionChangeExclusiveAction } from './actions'
 
 export type Props = {
+  children: ReactNode,
   options: ReadonlyArray<AppOption>,
   selection: ExclusiveSelection,
 }
@@ -48,9 +54,12 @@ Aborting selection. Review data for inconsistent  key names for \
             <label htmlFor={child.key}>{child.name}</label>
           </div>
         })}
+        {props.children}
       </fieldset>
     } else {
-      return <>Error</>
+      return <>Error finding option "${props.selection.optionKey}" from
+      selection "${props.selection.id}".
+        </>
     }
   }
   component.displayName = 'ExclusiveSelectionEditor'

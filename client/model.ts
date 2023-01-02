@@ -1,7 +1,7 @@
-import { add, always, chain } from 'ramda'
+import { add, always, chain, pipe } from 'ramda'
 import { v4 } from 'uuid'
-import { findInNumericRange } from './utils'
-import { intoOption, type Option } from './option'
+import { findInNumericRange, optionForSelection } from './utils'
+import Option, { type Option as OptionType } from './option'
 
 export type BaseOption = {
   autoAdd: boolean,
@@ -95,8 +95,6 @@ export type PoolScopeOption = BaseOption & {
  * level.
  */
 export type PoolOption = BaseOption & {
-  // Use null/undefined to indicate that this pool is general.
-  from: string | null | undefined,
   infinite: boolean,
   kind: 'pool-option',
 }
@@ -656,8 +654,8 @@ export const format = (
 export const optionFromSelection = (
   options: ReadonlyArray<AppOption>,
   selection: AppSelection,
-): Option<AppOption> => {
-  return intoOption(options.find(o => o.key == selection.optionKey))
+): OptionType<AppOption> => {
+  return Option.intoOption(options.find(o => o.key == selection.optionKey))
 }
 /**
  * Recurisvely grabs tags from selections that are identified via a "variable"
@@ -700,15 +698,13 @@ export const optionsAvailable = (
   scopedSelections: ReadonlyArray<AppSelection>,
   option: PooledRepeatingExtantOption,
 ): PooledOptions => {
+  console.log('scopedSelections', scopedSelections)
   const variableTags = chain(
     tagsFromVariable.bind(null, options),
     scopedSelections.filter(s => option.queryVariables.includes(s.optionKey)),
   )
   console.log('variableTags', variableTags)
   const searchTags = variableTags.concat(option.queryTags)
-  const tagged = options.filter(o => {
-    return searchTags.every(t => o.tags.includes(t))
-  })
   const selections = scopedSelections
     .filter(s => {
       return optionFromSelection(options, s)
@@ -721,7 +717,9 @@ export const optionsAvailable = (
         })
     })
   return {
-    options: tagged,
+    options: options.filter(o => {
+      return searchTags.every(t => o.tags.includes(t))
+    }),
     selections: selections,
   }
 }
@@ -748,4 +746,69 @@ export const selectableKey = (x: Selectable): string => {
   return isOptionFromSelectable(x)
     ? x.key
     : x.id
+}
+
+export const findSelectionByOptionKey = (
+  optionKey: string,
+  parent: AppSelection,
+): OptionType<AppSelection> => {
+  return parent.optionKey == optionKey
+    ? Option.intoOption(parent)
+    : parent.children.reduce((acc, child) => {
+      return acc.orElse(findSelectionByOptionKey.bind(null, optionKey, child))
+    }, Option.none)
+}
+
+export const scopedOptions = (
+  options: ReadonlyArray<AppOption>,
+  scoped: ReadonlyArray<AppOption>,
+  option: AppOption,
+  roster: AppSelection,
+  selection: AppSelection,
+): ReadonlyArray<AppOption> => {
+  if(selection.kind == 'pool-scope-selection'
+    && option.kind == 'pool-scope-option') {
+    return findSelectionByOptionKey(option.poolVariable, roster)
+      .andThen(pipe(
+        optionForSelection.bind(null, options),
+        Option.intoOption,
+      ))
+      .map(o => {
+        if(o.kind == 'pool-option') {
+          // TODO: This needs to come from the scope.
+          if(o.infinite) {
+            return scoped
+          } else {
+            // TODO: Make this exclude what's already added.
+            return []
+          }
+        } else {
+          console.error(`"${o.key}" is not a pool-option but \
+"${selection.optionKey}" refers to it as such.`)
+          return []
+        }
+      })
+      .unwrapOrElse(() => {
+        console.error(`Could not find pool-option for "${selection.optionKey}".`)
+        return []
+      })
+  } else {
+    return scoped
+  }
+}
+
+export const scopedSelections = (
+  selection: AppSelection,
+  option: AppOption,
+  roster: AppSelection,
+  scoped: ReadonlyArray<AppSelection>,
+): ReadonlyArray<AppSelection> => {
+  if(selection.kind == 'pool-scope-selection'
+    && option.kind == 'pool-scope-option') {
+      return flatSelections(roster)
+        .find(s => s.optionKey == option.poolVariable)?.children || []
+  } else {
+    // For non-pool entities, just chain along the scoped options.
+    return scoped
+  }
 }
