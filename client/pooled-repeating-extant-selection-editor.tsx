@@ -27,12 +27,13 @@ import {
   type PooledRepeatingExtantOption,
   type PooledOptions,
   type Selectable,
+  cloneSelection,
   flatSelections,
   isExtantSelection,
   isOptionFromSelectable,
-  optionsAvailable,
   optionToSelection,
-  cloneSelection,
+  optionsAvailable,
+  selectionFromSelectable,
 } from './model'
 import { Context } from './reducer-provider'
 import { optionForSelection, selectionTitle } from './utils'
@@ -99,22 +100,18 @@ const setNewOptionCandidate = (
   }
 }
 
-const selectionFromSelectable = (
-  selectable: Selectable,
-): AppSelection => {
-  return isOptionFromSelectable(selectable)
-    ? optionToSelection(selectable)
-    : cloneSelection(selectable)
-}
-
 const addSelection = (
+  options: ReadonlyArray<AppOption>,
   selection: PooledRepeatingExtantSelection,
   dispatch: React.Dispatch<AppAction>,
   toAdd: Selectable,
   e: MouseEvent<HTMLButtonElement>,
 ): void => {
   e.preventDefault()
-  dispatch(selectionAddChildrenAction(selection, selectionFromSelectable(toAdd)))
+  dispatch(selectionAddChildrenAction(
+    selection,
+    selectionFromSelectable(options, toAdd),
+  ))
   // TODO: This needs to be key or ID.
   dispatch(
     candidateSelectModeAction(selection.id, null, false),
@@ -133,7 +130,7 @@ export default (
     const option = optionForSelection(props.options, props.selection)
     if(option != null && option.kind == 'pooled-repeating-extant-option') {
       const availableOptions = optionsAvailable(
-        props.options,
+        props.scopedOptions,
         props.scopedSelections,
         option,
       )
@@ -144,6 +141,7 @@ export default (
       const candidateKey = candidateState.candidate != null
         ? selectableKeyOptionTagValue(candidateState.candidate)
         : undefined
+      console.log('props.scopedOptions', props.scopedOptions)
       console.log('available options', availableOptions)
       console.log('candidate', candidateState)
       console.log('candidateKey', candidateKey)
@@ -228,6 +226,7 @@ export default (
             ? <AddButton
               onClick={addSelection.bind(
                 null,
+                props.options,
                 props.selection,
                 dispatch,
                 candidateState.candidate,

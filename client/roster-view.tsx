@@ -6,7 +6,6 @@ import React, {
 import { v4 as uuid } from 'uuid'
 import { Context } from './reducer-provider'
 import rosterFn from './roster'
-import { options } from './data'
 import { optionToSelection, type AppSelection } from './model'
 import { default as buttonFn } from './button'
 import buttonStyles from './button.module.css'
@@ -82,13 +81,13 @@ export default (): FC<Props> => {
     const { state, dispatch } = useContext(Context)
     const createRoster = () => {
       const key = 'force'
-      const option = options.find(o => o.key == key)
+      const option = state.options.find(o => o.key == key)
       if(option == null) {
         console.error('Option missing: ' + key)
       } else {
         // TODO: Create the selection from the option. Otherwise we aren't
         // creating the correct selection type that follows the option.
-        dispatch(selectionCreateRosterAction(optionToSelection(option)))
+        dispatch(selectionCreateRosterAction(optionToSelection(state.options, option)))
       }
     }
     // Use focusFn instead of focus, because focus is global.
@@ -106,7 +105,7 @@ export default (): FC<Props> => {
               <h1>Roster</h1>
               <Roster
                 focus={focusFn}
-                options={options}
+                options={state.options}
                 roster={state.roster}
               />
             </section>
@@ -114,7 +113,7 @@ export default (): FC<Props> => {
               <h2>Selection</h2>
               {state.focus != null
                 ? <SelectionDetails
-                  options={options}
+                  options={state.options}
                   parent={null}
                   roster={state.roster}
                   scopedSelections={[]}

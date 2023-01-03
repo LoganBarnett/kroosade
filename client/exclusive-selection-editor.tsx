@@ -8,6 +8,7 @@ import {
   type AppOption,
   type ExclusiveSelection,
   isOptionFromEntity,
+  optionChildren,
 } from './model'
 import { optionForSelection } from './utils'
 import { Context } from './reducer-provider'
@@ -42,18 +43,20 @@ Aborting selection. Review data for inconsistent  key names for \
     const option = optionForSelection(props.options, props.selection)
     if(option != null) {
       return <fieldset className={className}>
-        {option.children.filter(isOptionFromEntity).map(child => {
-          return <div key={child.key} data-id={child.key}>
-            <input
-              checked={props.selection.selected == child.key}
-              name={props.selection.id}
-              onChange={onChange}
-              type="radio"
-              value={child.key}
-            />
-            <label htmlFor={child.key}>{child.name}</label>
-          </div>
-        })}
+        {optionChildren(props.options, option)
+          .filter(isOptionFromEntity)
+          .map(child => {
+            return <div key={child.key} data-id={child.key}>
+              <input
+                checked={props.selection.selected == child.key}
+                name={props.selection.id}
+                onChange={onChange}
+                type="radio"
+                value={child.key}
+              />
+              <label htmlFor={child.key}>{child.name}</label>
+            </div>
+          })}
         {props.children}
       </fieldset>
     } else {

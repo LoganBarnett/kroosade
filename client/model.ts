@@ -1,17 +1,14 @@
-import { add, always, chain, pipe } from 'ramda'
+import { add, always, chain, pipe, tap } from 'ramda'
 import { v4 } from 'uuid'
 import { findInNumericRange, optionForSelection } from './utils'
 import Option, { type Option as OptionType } from './option'
 
 export type BaseOption = {
   autoAdd: boolean,
+  childQuery: ReadonlyArray<string>,
+  costs: ReadonlyArray<Cost>,
   name: string,
   key: string,
-  // Validations, costs, and sub-options are all handed here as children.
-  // Separating them into separate fields doesn't carry big distinctions, and
-  // any additional data types would necessitate adding more fields onto
-  // AppOption types.
-  children: ReadonlyArray<Entity>,
   tags: ReadonlyArray<string>,
 }
 
@@ -341,21 +338,29 @@ export const isAutomaticallyAdded = (
 /**
  * Generate AppSelection children from an AppOption.
  */
-export const selectionChildren = (x: AppOption): ReadonlyArray<AppSelection> => {
-  return x.children
-    .filter(isOptionFromEntity)
+export const selectionChildren = (
+  options: ReadonlyArray<AppOption>,
+  x: AppOption,
+): ReadonlyArray<AppSelection> => {
+  return optionChildren(options, x)
     .filter(isAutomaticallyAdded.bind(null, x))
-    .map(optionToSelection)
+    .filter((o: AppOption) => {
+      return x.childQuery.every(c => o.tags.includes(c))
+    })
+    .map(optionToSelection.bind(null, options))
 }
 
 /**
  * Generate an AppSelection from an AppOption.
  */
-export const optionToSelection = (x: AppOption): AppSelection => {
+export const optionToSelection = (
+  options: ReadonlyArray<AppOption>,
+  x: AppOption,
+): AppSelection => {
   switch (x.kind) {
     case 'boolean-option': {
       const selection: BooleanSelection = {
-        children: selectionChildren(x),
+        children: selectionChildren(options, x),
         id: v4(),
         kind: 'boolean-selection',
         name: x.name,
@@ -366,7 +371,7 @@ export const optionToSelection = (x: AppOption): AppSelection => {
     }
     case 'extant-option': {
       const selection: ExtantSelection = {
-        children: selectionChildren(x),
+        children: selectionChildren(options, x),
         id: v4(),
         kind: 'extant-selection',
         name: x.name,
@@ -376,7 +381,7 @@ export const optionToSelection = (x: AppOption): AppSelection => {
     }
     case 'exclusive-option': {
       const selection: ExclusiveSelection = {
-        children: selectionChildren(x),
+        children: selectionChildren(options, x),
         id: v4(),
         kind: 'exclusive-selection',
         name: x.name,
@@ -387,7 +392,7 @@ export const optionToSelection = (x: AppOption): AppSelection => {
     }
     case 'numeric-option': {
       const selection: NumericSelection = {
-        children: selectionChildren(x),
+        children: selectionChildren(options, x),
         id: v4(),
         kind: 'numeric-selection',
         name: x.name,
@@ -398,7 +403,7 @@ export const optionToSelection = (x: AppOption): AppSelection => {
     }
     case 'pool-option': {
       const selection: PoolSelection = {
-        children: selectionChildren(x),
+        children: selectionChildren(options, x),
         id: v4(),
         kind: 'pool-selection',
         name: x.name,
@@ -408,7 +413,7 @@ export const optionToSelection = (x: AppOption): AppSelection => {
     }
     case 'pool-scope-option': {
       const selection: PoolScopeSelection = {
-        children: selectionChildren(x),
+        children: selectionChildren(options, x),
         id: v4(),
         kind: 'pool-scope-selection',
         name: x.name,
@@ -449,6 +454,13 @@ export const selectionToOption = (
   x: AppSelection,
 ): AppOption | null | undefined => {
   return options.find(o => o.key == x.optionKey)
+}
+
+export const optionChildren = (
+  options: ReadonlyArray<AppOption>,
+  option: AppOption,
+): ReadonlyArray<AppOption> => {
+  return options.filter(o => option.childQuery.every(c => o.tags.includes(c)))
 }
 
 /**
@@ -556,7 +568,7 @@ export const selectionCost = (
     // TODO handle this error, but we should never get here.
     return 0
   } else {
-    return option.children
+    return option.costs
       .filter(isCost)
       .filter(c => c.costKind == costKind)
       .map(c => c.amount(options, root, selection))
@@ -567,6 +579,15 @@ export const selectionCost = (
       )
         .reduce(add, 0)
   }
+}
+
+export const selectionFromSelectable = (
+  options: ReadonlyArray<AppOption>,
+  selectable: Selectable,
+): AppSelection => {
+  return isOptionFromSelectable(selectable)
+    ? optionToSelection(options, selectable)
+    : cloneSelection(selectable)
 }
 
 /**
@@ -769,21 +790,43 @@ export const scopedOptions = (
   if(selection.kind == 'pool-scope-selection'
     && option.kind == 'pool-scope-option') {
     return findSelectionByOptionKey(option.poolVariable, roster)
-      .andThen(pipe(
-        optionForSelection.bind(null, options),
-        Option.intoOption,
-      ))
-      .map(o => {
-        if(o.kind == 'pool-option') {
-          // TODO: This needs to come from the scope.
-          if(o.infinite) {
-            return scoped
+      .andThen<AppOption>(scope => {
+        if(scope.kind == 'pool-selection') {
+          return Option.intoOption(optionForSelection(options, scope))
+        } else if(scope.kind == 'exclusive-selection') {
+          // ExclusiveSelections can be used to select an option (such as a
+          // faction) which then selects the pool we want.
+          // In the future we might support others - such as a list of options
+          // to select from.
+          return Option.intoOption(
+            scope.children.find(c => c.optionKey == scope.selected),
+          ).andThen(pipe(
+            optionForSelection.bind(null, options),
+            Option.intoOption,
+          )).map((o: AppOption) => {
+            console.log(`Found ${o.key} for scoped options.`)
+            return o
+          })
+        } else {
+          return Option.none
+        }
+      }).map(pool => {
+        if(pool.kind == 'pool-option') {
+          if(pool.infinite) {
+            console.log(`filtering for ${pool.tags} in ${pool.key}`)
+            const filtered = options.filter(o => {
+              return o.tags.includes(pool.key)
+            })
+            console.log('filtered', filtered)
+            return filtered
           } else {
-            // TODO: Make this exclude what's already added.
+            // For non-infinite selections, we need a pool of selections, not
+            // options. Since we're handling options here, just return an empty
+            // list.
             return []
           }
         } else {
-          console.error(`"${o.key}" is not a pool-option but \
+          console.error(`"${pool.key}" is not a pool-option but \
 "${selection.optionKey}" refers to it as such.`)
           return []
         }

@@ -109,15 +109,15 @@ export const spaceElvesSubFactionOption: ExclusiveOption = {
   tags: [],
 }
 
-export const spaceElvesFactionOption: ExtantOption = {
+export const spaceElvesFactionOption: PoolOption = {
   autoAdd: false,
   children: [
     spaceElvesSubFactionOption,
   ],
+  infinite: true,
   key: 'space-elves-faction',
-  kind: 'extant-option',
+  kind: 'pool-option',
   name: 'Space Elves',
-  removable: false,
   tags: [],
 }
 
@@ -197,7 +197,6 @@ export const rosterNarrativePlayOption: ExtantOption = {
   autoAdd: false,
   children: [
     detachmentsOption,
-    factionOption,
   ],
   name: 'Narrative Play Army Roster',
   key: 'roster-narrative-play',

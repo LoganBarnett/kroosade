@@ -1,12 +1,14 @@
 import {
   optionToSelection,
   type AppSelection,
+  type AppOption,
   type Selectable,
 } from './model'
 import { append, prop, remove, update } from 'ramda'
 import { deepModify, findByPath, pathTo } from './utils'
 import Option, { type Option as OptionType } from './option'
 import { type AppAction } from './actions'
+import { options as allOptions} from './data'
 
 export type RepeatingSelectionState = {
   adding: boolean,
@@ -14,13 +16,19 @@ export type RepeatingSelectionState = {
 }
 
 export type AppState = {
+  options: ReadonlyArray<AppOption>,
   repeatingCandidates: {[key: string]: RepeatingSelectionState },
   roster: AppSelection | null | undefined,
   focus: AppSelection | null | undefined,
 }
 
 export const initialState = (): AppState => {
-  return { repeatingCandidates: {}, roster: null, focus: null }
+  return {
+    options: allOptions,
+    repeatingCandidates: {},
+    roster: null,
+    focus: null
+  }
 }
 
 export const selectionAddChildReducer = (
@@ -42,6 +50,7 @@ export const selectionAddChildReducer = (
 }
 
 export const selectionChangeExclusiveReducer = (
+  options: ReadonlyArray<AppOption>,
   action: AppAction,
   selection: AppSelection,
 ): AppSelection => {
@@ -57,7 +66,7 @@ because "${selection.selected}" does not exist in "${selection.optionKey}". \
 Aborting selection change.`)
       return selection
     } else  {
-      children[i] = optionToSelection(action.selected)
+      children[i] = optionToSelection(options, action.selected)
       return {
         ...action.selection,
         children,
@@ -122,12 +131,15 @@ export const selectionChangeNameReducer = (
 
 type SelectionReducer = (action: AppAction, selection: AppSelection) => AppSelection
 
-const selectionReducerFromAction = (action: AppAction): SelectionReducer => {
+const selectionReducerFromAction = (
+  options: ReadonlyArray<AppOption>,
+  action: AppAction,
+): SelectionReducer => {
   switch(action.type) {
     case 'selection-add-child':
       return selectionAddChildReducer
     case 'selection-change-exclusive':
-      return selectionChangeExclusiveReducer
+      return selectionChangeExclusiveReducer.bind(null, options)
     case 'selection-change-name':
       return selectionChangeNameReducer
     case 'selection-change-number':
@@ -225,7 +237,7 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
         ).unwrapOr([])
         return findByPath(state.roster, path).andThen(original => {
           return deepModify(
-            selectionReducerFromAction(action).bind(null, action),
+            selectionReducerFromAction(state.options, action).bind(null, action),
             (parent, child) => {
               const i = parent.children.findIndex(x => x.id == child.id)
               // This really shouldn't be possible.

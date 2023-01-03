@@ -7,11 +7,14 @@ import React, {
   type ReactNode,
   useContext,
   useState,
+  Dispatch,
 } from 'react'
 import {
   type AppAction,
   selectionAddChildrenAction,
   selectionRemoveChildAction,
+  candidateSelectAction,
+  candidateSelectModeAction,
 } from './actions'
 import { type Component as ButtonComponent } from './button'
 import {
@@ -20,14 +23,19 @@ import {
 import {
   type AppOption,
   type AppSelection,
+  type Selectable,
   type RepeatingExtantSelection,
   isExtantSelection,
   isOptionFromEntity,
+  isOptionFromSelectable,
   optionToSelection,
+  optionChildren,
+  selectionFromSelectable,
 } from './model'
 import { Context } from './reducer-provider'
 import { optionForSelection, selectionTitle } from './utils'
 import { type Component as VisibleComponent } from './visible'
+import { RepeatingSelectionState } from './app-reducer'
 
 export type Props = {
   // TODO: Unsure if this needs to be here.
@@ -43,48 +51,60 @@ export type Props = {
 
 export type Component = FC<Props>
 
-type State = {
-  adding: boolean,
-  newOptionCandidate: AppOption | null | undefined,
-}
-
-const defaultState = (option: AppOption): State => {
-  return {
-    adding: false,
-    newOptionCandidate: option.children.filter(isOptionFromEntity)[0],
+const defaultState = (
+  state: RepeatingSelectionState | null | undefined,
+  availableOptions: ReadonlyArray<AppOption>,
+): RepeatingSelectionState => {
+  const defaultCandidate = availableOptions[0]
+  if(state != null) {
+    if(state.candidate == null) {
+      return {
+        ...state,
+        candidate: defaultCandidate,
+      }
+    } else {
+      return state
+    }
+  } else {
+    return {
+      adding: false,
+      candidate: defaultCandidate,
+    }
   }
 }
 
 const setNewOptionCandidate = (
-  setState: (x: State) => void,
-  state: State,
+  dispatch: Dispatch<AppAction>,
+  options: ReadonlyArray<AppOption>,
   option: AppOption,
   e: React.ChangeEvent<HTMLSelectElement>,
 ): void => {
-  console.log('setting new option to', e.target.value, option.children
-      .filter(isOptionFromEntity)
-      .find(o => o.key == e.target.value))
-  setState({
-    ...state,
-    newOptionCandidate: option.children
-      .filter(isOptionFromEntity)
-      .find(o => o.key == e.target.value),
-  })
+  const candidate = options.find(o => o.key == e.target.value)
+  if(candidate != null) {
+    dispatch(candidateSelectAction(option.key, candidate))
+  } else {
+    console.error(
+      `Error selecting candidate "${e.target.value}": Cannot be found with that key or ID.`,
+    )
+  }
 }
 
 const addSelection = (
+  options: ReadonlyArray<AppOption>,
   selection: RepeatingExtantSelection,
-  setState: (x: State) => void,
   dispatch: React.Dispatch<AppAction>,
-  toAdd: AppOption,
-  e: MouseEvent<HTMLButtonElement>,
+  toAdd: Selectable,
+  e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
 ): void => {
   e.preventDefault()
-  dispatch(selectionAddChildrenAction(selection, optionToSelection(toAdd)))
-  setState({
-    adding: false,
-    newOptionCandidate: toAdd,
-  })
+  dispatch(selectionAddChildrenAction(
+    selection,
+    selectionFromSelectable(options, toAdd),
+  ))
+  // TODO: This needs to be key or ID.
+  dispatch(
+    candidateSelectModeAction(selection.id, null, false),
+  )
 }
 
 export default (
@@ -94,14 +114,18 @@ export default (
   Visible: VisibleComponent,
 ): FC<Props> => {
   const component = (props: Props): ReactElement => {
-    const { dispatch } = useContext(Context)
+    const { state, dispatch } = useContext(Context)
     const option = optionForSelection(props.options, props.selection)
     const SelectionDetails = props.selectionDetailsComponent
     if(option != null) {
-      const [state, setState] = useState(Object.assign(
-        {},
-        defaultState(option),
-      ))
+      const candidateState = defaultState(
+        state.repeatingCandidates[props.selection.id],
+        props.options,
+      )
+      const candidateKey = candidateState.candidate != null
+        && isOptionFromSelectable(candidateState.candidate)
+        ? candidateState.candidate.key
+        : undefined
       return <fieldset className={className}>
         <ol>
           {props.selection.children
@@ -125,32 +149,45 @@ export default (
             })
           }
         </ol>
-        <Visible visible={!state.adding}>
-          <AddButton onClick={() => setState({...state, adding: true})}>
+        <Visible visible={!candidateState.adding}>
+          <AddButton
+            onClick={() => {
+              dispatch(candidateSelectModeAction(
+                props.selection.id,
+                candidateState.candidate,
+                true,
+              ))
+            }}
+          >
             add {selectionTitle(props.options, props.selection)}
           </AddButton>
         </Visible>
-        <Visible visible={state.adding}>
+        <Visible visible={candidateState.adding}>
           <select
-            onChange={setNewOptionCandidate.bind(null, setState, state, option)}
-            value={state.newOptionCandidate?.key}
+            onChange={setNewOptionCandidate.bind(
+              null,
+              dispatch,
+              props.options,
+              option,
+            )}
+            value={candidateKey}
           >
-            {option.children
+          {optionChildren(props.options, option)
               .filter(isOptionFromEntity)
               .map(o => <option key={o.key} value={o.key}>{o.name}</option>)
             }
           </select>
-          {state.newOptionCandidate != null
+          {candidateState.candidate != null
             ? <AddButton
-              onClick={addSelection.bind(
-                null,
-                props.selection,
-                setState,
-                dispatch,
-                state.newOptionCandidate,
-              )}
+                onClick={addSelection.bind(
+                  null,
+                  props.options,
+                  props.selection,
+                  dispatch,
+                  candidateState.candidate,
+                )}
             >
-              add {state.newOptionCandidate.name}
+              add {candidateState.candidate.name}
             </AddButton>
             : <>Data incomplete. No candidates found in '{option?.name}'</>
           }
