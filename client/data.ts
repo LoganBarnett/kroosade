@@ -20,247 +20,232 @@ import {
 
 export const eliteBattlefieldRole: PooledRepeatingExtantOption = {
   autoAdd: true,
+  childQuery: [],
+  costs: [],
   name: 'Elites',
   key: 'elite-battlefield-role',
   kind: 'pooled-repeating-extant-option',
-  children: [],
   queryTags: ['elite'],
   queryVariables: ['faction'],
-  tags: [],
+  tags: ['battlefield-role'],
 }
 
 export const patrolDetachmentOption: ExtantOption = {
   autoAdd: true,
-  children: [
-    eliteBattlefieldRole,
-  ],
+  childQuery: ['battlefield-role'],
+  // TODO: The CP cost would go here (only use in copyrighted material though).
+  costs: [],
   name: 'Patrol Detachment',
   key: 'patrol-detachment',
   kind: 'extant-option',
   removable: false,
-  tags: [],
+  tags: ['detachment'],
 }
 
 export const battalionDetachmentOption: ExtantOption = {
   autoAdd: false,
-  children: [
-    eliteBattlefieldRole,
-  ],
+  childQuery: ['battlefield-role'],
+  // TODO: The CP cost would go here (only use in copyrighted material though).
+  costs: [],
   key: 'battalion-detachment',
   kind: 'extant-option',
   name: 'Battalion Detachment',
   removable: false,
-  tags: [],
+  tags: ['detachment'],
 }
 
 export const detachmentsOption: RepeatingExtantOption = {
   autoAdd: true,
-  children: [
-    battalionDetachmentOption,
-    patrolDetachmentOption,
-  ],
+  childQuery: ['detachment'],
+  costs: [],
   key: 'detachments',
   kind: 'repeating-extant-option',
   name: 'Detatchments',
-  tags: [],
+  tags: ['detatchment-repeater'],
 }
 
 export const hedonistSpaceElvesFactionOption: ExtantOption = {
   autoAdd: false,
-  children: [],
+  childQuery: ['hedonist-space-elves-sub-faction'],
+  costs: [],
   key: 'hedonist-space-elves-sub-faction',
   kind: 'extant-option',
   name: 'Hedonist Space Elves',
-  tags: [],
+  tags: ['subfaction', 'space-elves-faction'],
   removable: false,
 }
 
 export const thespianSpaceElvesFactionOption: ExtantOption = {
   autoAdd: false,
-  children: [],
+  childQuery: ['thespian-space-elves-sub-faction'],
+  costs: [],
   key: 'thespian-space-elves-sub-faction',
   kind: 'extant-option',
   name: 'Uptight Space Elves',
-  tags: [],
+  tags: ['subfaction', 'space-elves-faction'],
   removable: false,
 }
 
 export const uptightSpaceElvesFactionOption: ExtantOption = {
   autoAdd: false,
-  children: [],
+  childQuery: ['uptight-space-elves-sub-faction'],
+  costs: [],
   key: 'uptight-space-elves-sub-faction',
   kind: 'extant-option',
   name: 'Uptight Space Elves',
-  tags: [],
+  tags: ['subfaction', 'space-elves-faction'],
   removable: false,
 }
 
 export const spaceElvesSubFactionOption: ExclusiveOption = {
   autoAdd: false,
-  children: [
-    hedonistSpaceElvesFactionOption,
-    uptightSpaceElvesFactionOption,
-    thespianSpaceElvesFactionOption,
-  ],
+  childQuery: ['subfaction', 'space-elves-faction'],
+  costs: [],
   default: '',
   key: 'space-elves-sub-faction',
   kind: 'exclusive-option',
   name: 'Space Elves',
-  tags: [],
+  tags: ['faction', 'space-elves'],
 }
 
 export const spaceElvesFactionOption: PoolOption = {
   autoAdd: false,
-  children: [
-    spaceElvesSubFactionOption,
-  ],
+  childQuery: ['faction', 'space-elves-faction'],
+  costs: [],
   infinite: true,
   key: 'space-elves-faction',
   kind: 'pool-option',
   name: 'Space Elves',
-  tags: [],
+  tags: ['faction'],
 }
 
 export const unboundFactionOption: ExtantOption = {
   autoAdd: false,
-  children: [],
+  childQuery: [],
+  costs: [],
   key: 'unbound-faction',
   kind: 'extant-option',
   name: 'Unbound',
   removable: false,
-  tags: [],
+  tags: ['faction'],
 }
 
 export const smirksFactionOption: ExtantOption = {
   autoAdd: false,
-  children: [],
+  childQuery: ['smirks-faction'],
+  costs: [],
   key: 'smirks-faction',
   kind: 'extant-option',
   name: 'Smirks - they shall know no smear',
-  tags: [],
   removable: false,
+  tags: ['faction'],
 }
 
 export const factionOption: ExclusiveOption = {
   autoAdd: true,
-  children: [
-    smirksFactionOption,
-    spaceElvesFactionOption,
-    unboundFactionOption,
-  ],
+  childQuery: ['faction'],
+  costs: [],
   default: 'unbound-faction',
   key: 'faction',
   kind: 'exclusive-option',
   name: 'Faction',
-  tags: [],
+  tags: ['faction-selector', 'crusade-play', 'roster'],
 }
 
 export const infinitePoolOption: PoolOption = {
   autoAdd: true,
-  children: [
-    factionOption,
+  childQuery: [
+    'faction-selector',
   ],
+  costs: [],
   infinite: true,
   key: 'infinite-pool',
   kind: 'pool-option',
   name: 'Infinite Pool',
-  tags: [],
+  tags: ['infinite-pool', 'roster'],
 }
 
 export const rosterOpenPlayOption: ExtantOption = {
   autoAdd: false,
-  children: [
-    detachmentsOption,
-    factionOption,
-  ],
+  childQuery: ['open-play', 'roster'],
+  costs: [],
   name: 'Open Play Army Roster',
   key: 'roster-open-play',
   kind: 'extant-option',
   removable: false,
-  tags: [],
+  tags: ['root'],
 }
 
 export const rosterMatchedPlayOption: PoolScopeOption = {
   autoAdd: false,
-  children: [
-    detachmentsOption,
-    infinitePoolOption,
-  ],
+  childQuery: ['matched-play', 'roster'],
+  costs: [],
   name: 'Matched Play Army Roster',
   key: 'roster-matched-play',
   kind: 'pool-scope-option',
   poolVariable: 'infinite-pool',
-  tags: [],
+  tags: ['root'],
 }
 
 export const rosterNarrativePlayOption: ExtantOption = {
   autoAdd: false,
-  children: [
-    detachmentsOption,
-  ],
+  childQuery: ['narrative-play', 'roster'],
+  costs: [],
   name: 'Narrative Play Army Roster',
   key: 'roster-narrative-play',
   kind: 'extant-option',
   removable: false,
-  tags: [],
+  tags: ['root'],
 }
 
 export const multiRosterNarrativeOption: RepeatingExtantOption = {
   autoAdd: true,
-  children: [
-    rosterNarrativePlayOption,
-  ],
+  childQuery: ['narrative-play', 'roster'],
+  costs: [],
   name: 'Crusade Armies',
   key: 'crusade-armies',
   kind: 'repeating-extant-option',
-  tags: [],
+  tags: ['multi-roster', 'crusade-play'],
 }
 
 export const orderOfBattleOption: PooledRepeatingExtantOption = {
   autoAdd: true,
-  children: [],
+  childQuery: [],
+  costs: [],
   key: 'order-of-battle',
   kind: 'pooled-repeating-extant-option',
   name: 'Order of Battle',
   queryTags: ['unit'],
   queryVariables: ['faction'],
-  tags: [],
+  tags: ['crusade-play', 'roster'],
 }
 
 export const orderOfBattlePoolScopeOption: PoolScopeOption = {
   autoAdd: true,
-  children: [
-    multiRosterNarrativeOption,
-  ],
+  childQuery: ['multi-roster', 'crusade-play'],
+  costs: [],
   key: 'order-of-battle-pool-scope-option',
   kind: 'pool-scope-option',
   name: 'Order of Battle Pool Scope',
-  tags: [],
+  tags: ['multi-roster-pool-scope', 'crusade-play', 'roster'],
   poolVariable: 'faction',
 }
 
 export const crusadeForceOption: ExtantOption = {
   autoAdd: false,
-  children: [
-    orderOfBattleOption,
-    orderOfBattlePoolScopeOption,
-    factionOption,
-  ],
+  childQuery: ['crusade-play', 'roster'],
+  costs: [],
   key: 'crusade-force',
   kind: 'extant-option',
   name: 'Crusade Force',
   removable: false,
-  tags: [],
+  tags: ['root'],
 }
 
 export const forceOption: ExclusiveOption = {
   autoAdd: false,
-  children: [
-    crusadeForceOption,
-    rosterMatchedPlayOption,
-    rosterNarrativePlayOption,
-    rosterOpenPlayOption,
-  ],
+  childQuery: ['root'],
+  costs: [],
   default: 'roster-matched-play',
   key: 'force',
   kind: 'exclusive-option',
